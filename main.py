@@ -5,7 +5,7 @@ import numpy as np
 import pandas as pd
 import pm4py as pm
 import pyarrow as pa
-from data_manager.preprocessing import preprocessing
+from preprocessing.preprocessing import preprocessing
 from pm4py.objects.log.util import get_log_representation
 from compliance_analysis.aad_experiment.aad.anomaly import detect_anomalies
 

@@ -1,7 +1,4 @@
 # %%
-# Adding changes to commit: git commit -m "name or push"
-# Pushing changes to github: git push -u origin main
-# %%
 # Imports
 import time
 import numpy as np

@@ -13,7 +13,17 @@
 	},
 
 	// Add the IDs of extensions you want installed when the container is created.
+<<<<<<< HEAD
 	"extensions": ["ms-python.python", "ms-python.vscode-pylance", "njpwerner.autodocstring", "aaron-bond.better-comments"]
+=======
+	"extensions": [
+		"ms-python.python",
+		"ms-python.vscode-pylance",
+		"njpwerner.autodocstring",
+		"aaron-bond.better-comments",
+		"knisterpeter.vscode-github"
+	]
+>>>>>>> 43304ca41a6ba35a03ba2f00f2a6fd5bc5b61b4c
 
 	// Use 'forwardPorts' to make a list of ports inside the container available locally.
 	// "forwardPorts": [],

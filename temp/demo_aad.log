@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 DEBUG [2021-02-14 18:28:57,958]: []-iforest_tau_instance-trees100_samples256_nscore4_leaf-query_top-unifprior0.5-init_uniform-Ca1.0-0_0-reruns1-bd3-tau0.03-topK0
 DEBUG [2021-02-14 18:29:42,031]: created original forest 44.000000 sec(s)
 DEBUG [2021-02-14 18:30:36,532]: created forest regions 54.000000 sec(s)
@@ -35,24 +34,3 @@ DEBUG [2021-02-14 18:34:20,814]: []-iforest_tau_instance-trees100_samples256_nsc
 DEBUG [2021-02-14 18:34:21,137]: created original forest 0.000000 sec(s)
 DEBUG [2021-02-14 18:34:37,457]: created forest regions 16.000000 sec(s)
 DEBUG [2021-02-14 18:34:37,463]: Initializing weights to uniform
-=======
-DEBUG [2021-02-16 10:27:57,399]: []-iforest_tau_instance-trees100_samples256_nscore4_leaf-query_top-unifprior0.5-init_uniform-Ca1.0-0_0-reruns1-bd3-tau0.03-topK0
-DEBUG [2021-02-16 10:27:59,332]: created original forest 1.000000 sec(s)
-DEBUG [2021-02-16 10:28:40,206]: created forest regions 40.000000 sec(s)
-DEBUG [2021-02-16 10:28:40,207]: Initializing weights to uniform
-DEBUG [2021-02-16 10:28:41,085]: write 1050 bytes to '/tmp/tmp1np6afxw.gv'
-DEBUG [2021-02-16 10:28:41,086]: run ['dot', '-Kdot', '-Tpng', '-O', 'tmp1np6afxw.gv']
-DEBUG [2021-02-16 10:30:23,285]: [sgdRMSProp] epochs: 1; avg last 20 losses:0.000000; time: 0.000000
-DEBUG [2021-02-16 10:31:55,715]: []-iforest_tau_instance-trees100_samples256_nscore4_leaf-query_top-unifprior0.5-init_uniform-Ca1.0-0_0-reruns1-bd3-tau0.03-topK0
-DEBUG [2021-02-16 10:32:24,902]: created original forest 29.000000 sec(s)
-DEBUG [2021-02-16 10:33:02,638]: created forest regions 37.000000 sec(s)
-DEBUG [2021-02-16 10:33:02,639]: Initializing weights to uniform
-DEBUG [2021-02-16 10:33:15,835]: write 1049 bytes to '/tmp/tmptbg1wmie.gv'
-DEBUG [2021-02-16 10:33:15,837]: run ['dot', '-Kdot', '-Tpng', '-O', 'tmptbg1wmie.gv']
-DEBUG [2021-02-16 10:33:30,276]: [sgdRMSProp] epochs: 1; avg last 20 losses:0.000000; time: 0.000000
-DEBUG [2021-02-16 10:33:30,282]: write 1053 bytes to '/tmp/tmphchh5wu5.gv'
-DEBUG [2021-02-16 10:33:30,284]: run ['dot', '-Kdot', '-Tpng', '-O', 'tmphchh5wu5.gv']
-DEBUG [2021-02-16 10:33:31,878]: [sgdRMSProp] epochs: 1; avg last 20 losses:0.000000; time: 0.000000
-DEBUG [2021-02-16 10:33:31,883]: write 1050 bytes to '/tmp/tmpk5o2oilb.gv'
-DEBUG [2021-02-16 10:33:31,884]: run ['dot', '-Kdot', '-Tpng', '-O', 'tmpk5o2oilb.gv']
->>>>>>> 43304ca41a6ba35a03ba2f00f2a6fd5bc5b61b4c

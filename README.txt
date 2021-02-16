@@ -9,7 +9,8 @@ SETUP
 
 GITHUB
 
-First step:                     git init
+Register name/email:            git config --global user.name/email "name"
+Initiate git:                   git init
 Connect to github repo:         git remote add origin %repo%
 Adding changes to commit:       git add .
 Commit changed:                 git commit -m "name or push"

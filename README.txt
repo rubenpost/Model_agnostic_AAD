@@ -18,5 +18,6 @@ Clone repo:                     git clone %repo%
 Stash updates if unrelated:     git stash
 Fetch updates from repo:        git pull origin main --allow-unrelated-histories
 Make sure you're on main:       git branch (has to be main), if not: git checkout -b main
+Accept incoming chabges:        cmnd + shirt + p -> Merge Conflict: Accept All incoming
 
 Repo for AAD:                   https://github.com/rubenpost/Model_agnostic_AAD.git

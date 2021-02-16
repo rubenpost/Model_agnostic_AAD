@@ -54,10 +54,7 @@ prometheus-client==0.9.0
 prompt-toolkit==3.0.14
 ptyprocess==0.7.0
 PuLP==2.1
-<<<<<<< HEAD
-=======
 pyarrow==3.0.0
->>>>>>> 43304ca41a6ba35a03ba2f00f2a6fd5bc5b61b4c
 pycparser==2.20
 pydotplus==2.0.2
 Pygments==2.7.4

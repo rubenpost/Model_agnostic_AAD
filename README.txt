@@ -19,4 +19,4 @@ Stash updates if unrelated:     git stash
 Fetch updates from repo:        git pull origin main --allow-unrelated-histories
 Make sure you're on main:       git branch (has to be main), if not: git checkout -b main
 
-Repo for AAD:                   https://github.com/rubenpost/Model_agnostic_AAD.gitgit
+Repo for AAD:                   https://github.com/rubenpost/Model_agnostic_AAD.git

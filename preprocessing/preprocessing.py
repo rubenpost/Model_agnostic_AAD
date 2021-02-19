@@ -5,7 +5,7 @@ import time
 
 class preprocessing:
 
-    def column_rename(data_path, case_id_col, activity_col, timestamp_col, resource_col):
+    def column_rename(data_path, case_id_col, activity_col, timestamp_col, resource_col, log_path=None):
         start = time.time()
 
         # load data
@@ -29,7 +29,10 @@ class preprocessing:
         df = datamanager(data = df)
 
         # Load event log
-        log = pm.convert_to_event_log(df.data)
+        if log_path != None:
+            log = pm.read_xes(log_path)
+        else:
+            log = pm.convert_to_event_log(df.data)
 
         end = time.time()
         print("Preprocessing took", end - start, "seconds.")
@@ -52,7 +55,7 @@ class datamanager:
 
         # get fist case in the data
         gp = data.groupby('case:concept:name')
-        sample = gp.get_group(data['case:concept:name'][1])
+        sample = gp.get_group(data['case:concept:name'].iloc[0])
         sample_object = sample.select_dtypes(include=['object'])
         sample_other = sample.drop(sample_object.columns,axis = 1)
 

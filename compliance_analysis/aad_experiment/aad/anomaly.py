@@ -1,12 +1,12 @@
 # %%
-import os
 import sys
 import time
 
 sys.path.insert(1,"/workspaces/thesis/compliance_analysis")
 import logging
 import numpy as np
-import pandas as pd
+import seaborn as sns
+import matplotlib.pyplot as plt
 from aad_experiment.common.utils import configure_logger
 from aad_experiment.aad.aad_globals import (
     AAD_IFOREST, IFOR_SCORE_TYPE_NEG_PATH_LEN, HST_LOG_SCORE_TYPE, AAD_HSTREES, RSF_SCORE_TYPE,
@@ -20,8 +20,6 @@ from aad_experiment.aad.forest_description import CompactDescriber, MinimumVolum
 from aad_experiment.aad.query_model import Query
 from pm4py.algo.discovery.dfg import algorithm as dfg_discovery
 from pm4py.visualization.dfg import visualizer as dfg_visualization
-from pm4py.objects.log.util import dataframe_utils
-from pm4py.objects.conversion.log import converter as log_converter
 
 logger = logging.getLogger(__name__)
 
@@ -56,7 +54,7 @@ def get_debug_args(budget=3, detector_type=AAD_IFOREST):
             "--log_file=./temp/demo_aad.log",
             "--debug"]
 
-def detect_anomalies(x, log):
+def detect_anomalies(x, log, df):
     start = time.time()
     # Prepare the aad arguments. It is easier to first create the parsed args and
     # then create the actual AadOpts from the args  
@@ -89,7 +87,7 @@ def detect_anomalies(x, log):
                                 queried_items=queried)
         queried.extend(qx)
         for xi in qx:
-            show_anomaly(xi, log)
+            show_anomaly(xi, log, df)
             print(xi)
             while True:
                 y_labeled[xi] = input("Is the trace an anomaly? 1 for yes, 0 for no:")
@@ -179,7 +177,60 @@ def describe_instances(x, instance_indexes, model, opts, interpretable=False):
 
     return zip(selected_region_idxs, instances_in_each_region), desc_regions
 
-def show_anomaly(queried, log):
+def show_anomaly(queried, log, df):
     dfg = dfg_discovery.apply(log[queried:queried+1], variant=dfg_discovery.Variants.PERFORMANCE)
     gviz = dfg_visualization.apply(dfg, log=log[queried:queried+1], variant=dfg_visualization.Variants.PERFORMANCE)
-    dfg_visualization.view(gviz)
+    
+    for i in df.select_dtypes(['float','int64']):
+        sns.displot(df[i], kind='kde', bw_adjust=1.5, fill=True)
+        gp = df.groupby('case:concept:name')
+        sample = gp.get_group(df['case:concept:name'].iloc[queried])
+        plt.axvline(x=sample[i].sum())
+        plt.show()
+    return dfg_visualization.view(gviz)
+# import pandas as pd
+# from bokeh.io import show
+# from bokeh.io.output import output_notebook
+# from bokeh.models import (BasicTicker, ColorBar, ColumnDataSource,
+#                           LinearColorMapper, PrintfTickFormatter,)
+# from bokeh.plotting import figure
+# from bokeh.transform import transform
+# from bokeh.palettes import RdBu9
+# from bokeh.plotting import ColumnDataSource, figure, show
+
+# gp = data.groupby('case:concept:name')
+# sample = gp.get_group('Application_1387439149')
+# df1 = sample[['org:resource', 'concept:name']].append(sample[['org:resource', 'concept:name']][:6])
+# df = df1.value_counts()
+# df = pd.DataFrame(df)
+# df = df.reset_index()
+# df.rename(columns={0:'count',
+# 'org:resource':'resource',
+# 'concept:name':'name'}, inplace=True)
+# df
+# source = ColumnDataSource(df)
+# mapper = LinearColorMapper(palette=RdBu9, low=df['count'].min(), high=df['count'].max())
+# tooltips = [
+#     ("Resource", "@resource"),
+#     ("Activity", "@name"),
+#     ("Count", "@count"),
+# ]
+# p = figure(plot_width=df['resource'].nunique()*50, plot_height=df['name'].nunique()*100, title="Activities performed per preparer",
+#            y_range=df['name'].unique(), x_range=df['resource'].unique(),x_axis_location="above", tooltips=tooltips)
+
+# p.rect(y="name", x="resource", width=1, height=1, source=source,
+#        line_color=None, fill_color=transform('count', mapper))
+
+# p.axis.axis_line_color = None
+# p.axis.major_tick_line_color = None
+# p.axis.major_label_text_font_size = "13px"
+# p.axis.major_label_standoff = 0
+# p.xaxis.major_label_orientation = 1.2
+# p.outline_line_color = None
+
+# # p.xgrid.visible = False
+# # p.ygrid.visible = False
+
+# output_notebook()
+# show(p)
+# %%

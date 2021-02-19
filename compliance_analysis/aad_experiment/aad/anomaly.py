@@ -185,7 +185,7 @@ def show_anomaly(queried, log, df):
         sns.displot(df[i], kind='kde', bw_adjust=1.5, fill=True)
         gp = df.groupby('case:concept:name')
         sample = gp.get_group(df['case:concept:name'].iloc[queried])
-        plt.axvline(x=sample[i].sum())
+        plt.axvline(x=sample[i].sum(), color='midnightblue')
         plt.show()
     return dfg_visualization.view(gviz)
 # import pandas as pd

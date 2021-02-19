@@ -1,68 +1,68 @@
-DEBUG [2021-02-19 16:02:47,977]: []-iforest_tau_instance-trees100_samples256_nscore4_leaf-query_top-unifprior0.5-init_uniform-Ca1.0-0_0-reruns1-bd3-tau0.03-topK0
-DEBUG [2021-02-19 16:02:48,347]: created original forest 0.000000 sec(s)
-DEBUG [2021-02-19 16:02:54,817]: created forest regions 6.000000 sec(s)
-DEBUG [2021-02-19 16:02:54,818]: Initializing weights to uniform
-DEBUG [2021-02-19 16:02:55,030]: findfont: Matching sans\-serif:style=normal:variant=normal:weight=normal:stretch=normal:size=10.0.
-DEBUG [2021-02-19 16:02:55,032]: findfont: score(<Font 'STIXGeneral' (STIXGeneral.ttf) normal normal 400 normal>) = 10.05
-DEBUG [2021-02-19 16:02:55,033]: findfont: score(<Font 'DejaVu Sans' (DejaVuSans.ttf) normal normal 400 normal>) = 0.05
-DEBUG [2021-02-19 16:02:55,034]: findfont: score(<Font 'STIXNonUnicode' (STIXNonUniBol.ttf) normal normal 700 normal>) = 10.335
-DEBUG [2021-02-19 16:02:55,035]: findfont: score(<Font 'STIXNonUnicode' (STIXNonUniBolIta.ttf) italic normal 700 normal>) = 11.335
-DEBUG [2021-02-19 16:02:55,036]: findfont: score(<Font 'cmss10' (cmss10.ttf) normal normal 400 normal>) = 10.05
-DEBUG [2021-02-19 16:02:55,037]: findfont: score(<Font 'STIXSizeFiveSym' (STIXSizFiveSymReg.ttf) normal normal 400 normal>) = 10.05
-DEBUG [2021-02-19 16:02:55,038]: findfont: score(<Font 'STIXSizeTwoSym' (STIXSizTwoSymReg.ttf) normal normal 400 normal>) = 10.05
-DEBUG [2021-02-19 16:02:55,039]: findfont: score(<Font 'STIXNonUnicode' (STIXNonUni.ttf) normal normal 400 normal>) = 10.05
-DEBUG [2021-02-19 16:02:55,040]: findfont: score(<Font 'cmsy10' (cmsy10.ttf) normal normal 400 normal>) = 10.05
-DEBUG [2021-02-19 16:02:55,040]: findfont: score(<Font 'DejaVu Serif' (DejaVuSerif-BoldItalic.ttf) italic normal 700 normal>) = 11.335
-DEBUG [2021-02-19 16:02:55,041]: findfont: score(<Font 'DejaVu Serif' (DejaVuSerif-Italic.ttf) italic normal 400 normal>) = 11.05
-DEBUG [2021-02-19 16:02:55,042]: findfont: score(<Font 'STIXGeneral' (STIXGeneralItalic.ttf) italic normal 400 normal>) = 11.05
-DEBUG [2021-02-19 16:02:55,043]: findfont: score(<Font 'cmmi10' (cmmi10.ttf) normal normal 400 normal>) = 10.05
-DEBUG [2021-02-19 16:02:55,044]: findfont: score(<Font 'cmr10' (cmr10.ttf) normal normal 400 normal>) = 10.05
-DEBUG [2021-02-19 16:02:55,052]: findfont: score(<Font 'STIXGeneral' (STIXGeneralBol.ttf) normal normal 700 normal>) = 10.335
-DEBUG [2021-02-19 16:02:55,053]: findfont: score(<Font 'cmtt10' (cmtt10.ttf) normal normal 400 normal>) = 10.05
-DEBUG [2021-02-19 16:02:55,054]: findfont: score(<Font 'DejaVu Serif Display' (DejaVuSerifDisplay.ttf) normal normal 400 normal>) = 10.05
-DEBUG [2021-02-19 16:02:55,055]: findfont: score(<Font 'STIXSizeTwoSym' (STIXSizTwoSymBol.ttf) normal normal 700 normal>) = 10.335
-DEBUG [2021-02-19 16:02:55,056]: findfont: score(<Font 'DejaVu Sans Mono' (DejaVuSansMono-BoldOblique.ttf) oblique normal 700 normal>) = 11.335
-DEBUG [2021-02-19 16:02:55,057]: findfont: score(<Font 'DejaVu Serif' (DejaVuSerif.ttf) normal normal 400 normal>) = 10.05
-DEBUG [2021-02-19 16:02:55,058]: findfont: score(<Font 'STIXNonUnicode' (STIXNonUniIta.ttf) italic normal 400 normal>) = 11.05
-DEBUG [2021-02-19 16:02:55,059]: findfont: score(<Font 'DejaVu Sans Mono' (DejaVuSansMono.ttf) normal normal 400 normal>) = 10.05
-DEBUG [2021-02-19 16:02:55,060]: findfont: score(<Font 'STIXSizeFourSym' (STIXSizFourSymReg.ttf) normal normal 400 normal>) = 10.05
-DEBUG [2021-02-19 16:02:55,061]: findfont: score(<Font 'DejaVu Sans Display' (DejaVuSansDisplay.ttf) normal normal 400 normal>) = 10.05
-DEBUG [2021-02-19 16:02:55,062]: findfont: score(<Font 'STIXSizeOneSym' (STIXSizOneSymReg.ttf) normal normal 400 normal>) = 10.05
-DEBUG [2021-02-19 16:02:55,063]: findfont: score(<Font 'cmb10' (cmb10.ttf) normal normal 400 normal>) = 10.05
-DEBUG [2021-02-19 16:02:55,064]: findfont: score(<Font 'STIXSizeThreeSym' (STIXSizThreeSymReg.ttf) normal normal 400 normal>) = 10.05
-DEBUG [2021-02-19 16:02:55,065]: findfont: score(<Font 'DejaVu Sans' (DejaVuSans-Bold.ttf) normal normal 700 normal>) = 0.33499999999999996
-DEBUG [2021-02-19 16:02:55,066]: findfont: score(<Font 'DejaVu Sans' (DejaVuSans-BoldOblique.ttf) oblique normal 700 normal>) = 1.335
-DEBUG [2021-02-19 16:02:55,067]: findfont: score(<Font 'STIXGeneral' (STIXGeneralBolIta.ttf) italic normal 700 normal>) = 11.335
-DEBUG [2021-02-19 16:02:55,068]: findfont: score(<Font 'DejaVu Sans' (DejaVuSans-Oblique.ttf) oblique normal 400 normal>) = 1.05
-DEBUG [2021-02-19 16:02:55,069]: findfont: score(<Font 'DejaVu Serif' (DejaVuSerif-Bold.ttf) normal normal 700 normal>) = 10.335
-DEBUG [2021-02-19 16:02:55,070]: findfont: score(<Font 'cmex10' (cmex10.ttf) normal normal 400 normal>) = 10.05
-DEBUG [2021-02-19 16:02:55,071]: findfont: score(<Font 'STIXSizeOneSym' (STIXSizOneSymBol.ttf) normal normal 700 normal>) = 10.335
-DEBUG [2021-02-19 16:02:55,072]: findfont: score(<Font 'STIXSizeThreeSym' (STIXSizThreeSymBol.ttf) normal normal 700 normal>) = 10.335
-DEBUG [2021-02-19 16:02:55,074]: findfont: score(<Font 'DejaVu Sans Mono' (DejaVuSansMono-Oblique.ttf) oblique normal 400 normal>) = 11.05
-DEBUG [2021-02-19 16:02:55,075]: findfont: score(<Font 'STIXSizeFourSym' (STIXSizFourSymBol.ttf) normal normal 700 normal>) = 10.335
-DEBUG [2021-02-19 16:02:55,076]: findfont: score(<Font 'DejaVu Sans Mono' (DejaVuSansMono-Bold.ttf) normal normal 700 normal>) = 10.335
-DEBUG [2021-02-19 16:02:55,077]: findfont: score(<Font 'Liberation Mono' (LiberationMono-Italic.ttf) italic normal 400 normal>) = 11.05
-DEBUG [2021-02-19 16:02:55,078]: findfont: score(<Font 'Liberation Sans Narrow' (LiberationSansNarrow-Bold.ttf) normal normal 700 condensed>) = 10.535
-DEBUG [2021-02-19 16:02:55,079]: findfont: score(<Font 'Liberation Sans Narrow' (LiberationSansNarrow-Regular.ttf) normal normal 400 condensed>) = 10.25
-DEBUG [2021-02-19 16:02:55,080]: findfont: score(<Font 'Liberation Serif' (LiberationSerif-BoldItalic.ttf) italic normal 700 normal>) = 11.335
-DEBUG [2021-02-19 16:02:55,081]: findfont: score(<Font 'Liberation Sans' (LiberationSans-BoldItalic.ttf) italic normal 700 normal>) = 11.335
-DEBUG [2021-02-19 16:02:55,082]: findfont: score(<Font 'Liberation Sans' (LiberationSans-Regular.ttf) normal normal 400 normal>) = 10.05
-DEBUG [2021-02-19 16:02:55,083]: findfont: score(<Font 'Liberation Serif' (LiberationSerif-Regular.ttf) normal normal 400 normal>) = 10.05
-DEBUG [2021-02-19 16:02:55,084]: findfont: score(<Font 'Liberation Sans' (LiberationSans-Italic.ttf) italic normal 400 normal>) = 11.05
-DEBUG [2021-02-19 16:02:55,085]: findfont: score(<Font 'DejaVu Sans' (DejaVuSans-Bold.ttf) normal normal 700 normal>) = 0.33499999999999996
-DEBUG [2021-02-19 16:02:55,086]: findfont: score(<Font 'DejaVu Sans Mono' (DejaVuSansMono.ttf) normal normal 400 normal>) = 10.05
-DEBUG [2021-02-19 16:02:55,087]: findfont: score(<Font 'Liberation Sans Narrow' (LiberationSansNarrow-Italic.ttf) italic normal 400 condensed>) = 11.25
-DEBUG [2021-02-19 16:02:55,088]: findfont: score(<Font 'Liberation Serif' (LiberationSerif-Bold.ttf) normal normal 700 normal>) = 10.335
-DEBUG [2021-02-19 16:02:55,089]: findfont: score(<Font 'DejaVu Serif' (DejaVuSerif.ttf) normal normal 400 normal>) = 10.05
-DEBUG [2021-02-19 16:02:55,090]: findfont: score(<Font 'Liberation Mono' (LiberationMono-Bold.ttf) normal normal 700 normal>) = 10.335
-DEBUG [2021-02-19 16:02:55,091]: findfont: score(<Font 'Liberation Mono' (LiberationMono-Regular.ttf) normal normal 400 normal>) = 10.05
-DEBUG [2021-02-19 16:02:55,092]: findfont: score(<Font 'DejaVu Sans' (DejaVuSans.ttf) normal normal 400 normal>) = 0.05
-DEBUG [2021-02-19 16:02:55,094]: findfont: score(<Font 'Liberation Sans' (LiberationSans-Bold.ttf) normal normal 700 normal>) = 10.335
-DEBUG [2021-02-19 16:02:55,095]: findfont: score(<Font 'DejaVu Serif' (DejaVuSerif-Bold.ttf) normal normal 700 normal>) = 10.335
-DEBUG [2021-02-19 16:02:55,096]: findfont: score(<Font 'Liberation Mono' (LiberationMono-BoldItalic.ttf) italic normal 700 normal>) = 11.335
-DEBUG [2021-02-19 16:02:55,097]: findfont: score(<Font 'DejaVu Sans Mono' (DejaVuSansMono-Bold.ttf) normal normal 700 normal>) = 10.335
-DEBUG [2021-02-19 16:02:55,098]: findfont: score(<Font 'Liberation Sans Narrow' (LiberationSansNarrow-BoldItalic.ttf) italic normal 700 condensed>) = 11.535
-DEBUG [2021-02-19 16:02:55,099]: findfont: score(<Font 'Liberation Serif' (LiberationSerif-Italic.ttf) italic normal 400 normal>) = 11.05
-DEBUG [2021-02-19 16:02:55,100]: findfont: Matching sans\-serif:style=normal:variant=normal:weight=normal:stretch=normal:size=10.0 to DejaVu Sans ('/usr/local/lib/python3.7/site-packages/matplotlib/mpl-data/fonts/ttf/DejaVuSans.ttf') with score of 0.050000.
-DEBUG [2021-02-19 16:03:02,768]: write 3664 bytes to '/tmp/tmp_j1isdel.gv'
-DEBUG [2021-02-19 16:03:02,770]: run ['dot', '-Kdot', '-Tpng', '-O', 'tmp_j1isdel.gv']
+DEBUG [2021-02-19 16:22:30,086]: []-iforest_tau_instance-trees100_samples256_nscore4_leaf-query_top-unifprior0.5-init_uniform-Ca1.0-0_0-reruns1-bd3-tau0.03-topK0
+DEBUG [2021-02-19 16:22:30,416]: created original forest 0.000000 sec(s)
+DEBUG [2021-02-19 16:22:36,854]: created forest regions 6.000000 sec(s)
+DEBUG [2021-02-19 16:22:36,855]: Initializing weights to uniform
+DEBUG [2021-02-19 16:22:37,065]: findfont: Matching sans\-serif:style=normal:variant=normal:weight=normal:stretch=normal:size=10.0.
+DEBUG [2021-02-19 16:22:37,066]: findfont: score(<Font 'STIXGeneral' (STIXGeneral.ttf) normal normal 400 normal>) = 10.05
+DEBUG [2021-02-19 16:22:37,068]: findfont: score(<Font 'DejaVu Sans' (DejaVuSans.ttf) normal normal 400 normal>) = 0.05
+DEBUG [2021-02-19 16:22:37,069]: findfont: score(<Font 'STIXNonUnicode' (STIXNonUniBol.ttf) normal normal 700 normal>) = 10.335
+DEBUG [2021-02-19 16:22:37,070]: findfont: score(<Font 'STIXNonUnicode' (STIXNonUniBolIta.ttf) italic normal 700 normal>) = 11.335
+DEBUG [2021-02-19 16:22:37,071]: findfont: score(<Font 'cmss10' (cmss10.ttf) normal normal 400 normal>) = 10.05
+DEBUG [2021-02-19 16:22:37,072]: findfont: score(<Font 'STIXSizeFiveSym' (STIXSizFiveSymReg.ttf) normal normal 400 normal>) = 10.05
+DEBUG [2021-02-19 16:22:37,072]: findfont: score(<Font 'STIXSizeTwoSym' (STIXSizTwoSymReg.ttf) normal normal 400 normal>) = 10.05
+DEBUG [2021-02-19 16:22:37,073]: findfont: score(<Font 'STIXNonUnicode' (STIXNonUni.ttf) normal normal 400 normal>) = 10.05
+DEBUG [2021-02-19 16:22:37,074]: findfont: score(<Font 'cmsy10' (cmsy10.ttf) normal normal 400 normal>) = 10.05
+DEBUG [2021-02-19 16:22:37,075]: findfont: score(<Font 'DejaVu Serif' (DejaVuSerif-BoldItalic.ttf) italic normal 700 normal>) = 11.335
+DEBUG [2021-02-19 16:22:37,076]: findfont: score(<Font 'DejaVu Serif' (DejaVuSerif-Italic.ttf) italic normal 400 normal>) = 11.05
+DEBUG [2021-02-19 16:22:37,077]: findfont: score(<Font 'STIXGeneral' (STIXGeneralItalic.ttf) italic normal 400 normal>) = 11.05
+DEBUG [2021-02-19 16:22:37,078]: findfont: score(<Font 'cmmi10' (cmmi10.ttf) normal normal 400 normal>) = 10.05
+DEBUG [2021-02-19 16:22:37,079]: findfont: score(<Font 'cmr10' (cmr10.ttf) normal normal 400 normal>) = 10.05
+DEBUG [2021-02-19 16:22:37,080]: findfont: score(<Font 'STIXGeneral' (STIXGeneralBol.ttf) normal normal 700 normal>) = 10.335
+DEBUG [2021-02-19 16:22:37,081]: findfont: score(<Font 'cmtt10' (cmtt10.ttf) normal normal 400 normal>) = 10.05
+DEBUG [2021-02-19 16:22:37,082]: findfont: score(<Font 'DejaVu Serif Display' (DejaVuSerifDisplay.ttf) normal normal 400 normal>) = 10.05
+DEBUG [2021-02-19 16:22:37,083]: findfont: score(<Font 'STIXSizeTwoSym' (STIXSizTwoSymBol.ttf) normal normal 700 normal>) = 10.335
+DEBUG [2021-02-19 16:22:37,084]: findfont: score(<Font 'DejaVu Sans Mono' (DejaVuSansMono-BoldOblique.ttf) oblique normal 700 normal>) = 11.335
+DEBUG [2021-02-19 16:22:37,085]: findfont: score(<Font 'DejaVu Serif' (DejaVuSerif.ttf) normal normal 400 normal>) = 10.05
+DEBUG [2021-02-19 16:22:37,086]: findfont: score(<Font 'STIXNonUnicode' (STIXNonUniIta.ttf) italic normal 400 normal>) = 11.05
+DEBUG [2021-02-19 16:22:37,087]: findfont: score(<Font 'DejaVu Sans Mono' (DejaVuSansMono.ttf) normal normal 400 normal>) = 10.05
+DEBUG [2021-02-19 16:22:37,089]: findfont: score(<Font 'STIXSizeFourSym' (STIXSizFourSymReg.ttf) normal normal 400 normal>) = 10.05
+DEBUG [2021-02-19 16:22:37,090]: findfont: score(<Font 'DejaVu Sans Display' (DejaVuSansDisplay.ttf) normal normal 400 normal>) = 10.05
+DEBUG [2021-02-19 16:22:37,091]: findfont: score(<Font 'STIXSizeOneSym' (STIXSizOneSymReg.ttf) normal normal 400 normal>) = 10.05
+DEBUG [2021-02-19 16:22:37,092]: findfont: score(<Font 'cmb10' (cmb10.ttf) normal normal 400 normal>) = 10.05
+DEBUG [2021-02-19 16:22:37,093]: findfont: score(<Font 'STIXSizeThreeSym' (STIXSizThreeSymReg.ttf) normal normal 400 normal>) = 10.05
+DEBUG [2021-02-19 16:22:37,095]: findfont: score(<Font 'DejaVu Sans' (DejaVuSans-Bold.ttf) normal normal 700 normal>) = 0.33499999999999996
+DEBUG [2021-02-19 16:22:37,096]: findfont: score(<Font 'DejaVu Sans' (DejaVuSans-BoldOblique.ttf) oblique normal 700 normal>) = 1.335
+DEBUG [2021-02-19 16:22:37,098]: findfont: score(<Font 'STIXGeneral' (STIXGeneralBolIta.ttf) italic normal 700 normal>) = 11.335
+DEBUG [2021-02-19 16:22:37,099]: findfont: score(<Font 'DejaVu Sans' (DejaVuSans-Oblique.ttf) oblique normal 400 normal>) = 1.05
+DEBUG [2021-02-19 16:22:37,100]: findfont: score(<Font 'DejaVu Serif' (DejaVuSerif-Bold.ttf) normal normal 700 normal>) = 10.335
+DEBUG [2021-02-19 16:22:37,101]: findfont: score(<Font 'cmex10' (cmex10.ttf) normal normal 400 normal>) = 10.05
+DEBUG [2021-02-19 16:22:37,102]: findfont: score(<Font 'STIXSizeOneSym' (STIXSizOneSymBol.ttf) normal normal 700 normal>) = 10.335
+DEBUG [2021-02-19 16:22:37,104]: findfont: score(<Font 'STIXSizeThreeSym' (STIXSizThreeSymBol.ttf) normal normal 700 normal>) = 10.335
+DEBUG [2021-02-19 16:22:37,105]: findfont: score(<Font 'DejaVu Sans Mono' (DejaVuSansMono-Oblique.ttf) oblique normal 400 normal>) = 11.05
+DEBUG [2021-02-19 16:22:37,106]: findfont: score(<Font 'STIXSizeFourSym' (STIXSizFourSymBol.ttf) normal normal 700 normal>) = 10.335
+DEBUG [2021-02-19 16:22:37,107]: findfont: score(<Font 'DejaVu Sans Mono' (DejaVuSansMono-Bold.ttf) normal normal 700 normal>) = 10.335
+DEBUG [2021-02-19 16:22:37,108]: findfont: score(<Font 'Liberation Mono' (LiberationMono-Italic.ttf) italic normal 400 normal>) = 11.05
+DEBUG [2021-02-19 16:22:37,109]: findfont: score(<Font 'Liberation Sans Narrow' (LiberationSansNarrow-Bold.ttf) normal normal 700 condensed>) = 10.535
+DEBUG [2021-02-19 16:22:37,110]: findfont: score(<Font 'Liberation Sans Narrow' (LiberationSansNarrow-Regular.ttf) normal normal 400 condensed>) = 10.25
+DEBUG [2021-02-19 16:22:37,111]: findfont: score(<Font 'Liberation Serif' (LiberationSerif-BoldItalic.ttf) italic normal 700 normal>) = 11.335
+DEBUG [2021-02-19 16:22:37,112]: findfont: score(<Font 'Liberation Sans' (LiberationSans-BoldItalic.ttf) italic normal 700 normal>) = 11.335
+DEBUG [2021-02-19 16:22:37,113]: findfont: score(<Font 'Liberation Sans' (LiberationSans-Regular.ttf) normal normal 400 normal>) = 10.05
+DEBUG [2021-02-19 16:22:37,115]: findfont: score(<Font 'Liberation Serif' (LiberationSerif-Regular.ttf) normal normal 400 normal>) = 10.05
+DEBUG [2021-02-19 16:22:37,116]: findfont: score(<Font 'Liberation Sans' (LiberationSans-Italic.ttf) italic normal 400 normal>) = 11.05
+DEBUG [2021-02-19 16:22:37,117]: findfont: score(<Font 'DejaVu Sans' (DejaVuSans-Bold.ttf) normal normal 700 normal>) = 0.33499999999999996
+DEBUG [2021-02-19 16:22:37,118]: findfont: score(<Font 'DejaVu Sans Mono' (DejaVuSansMono.ttf) normal normal 400 normal>) = 10.05
+DEBUG [2021-02-19 16:22:37,119]: findfont: score(<Font 'Liberation Sans Narrow' (LiberationSansNarrow-Italic.ttf) italic normal 400 condensed>) = 11.25
+DEBUG [2021-02-19 16:22:37,121]: findfont: score(<Font 'Liberation Serif' (LiberationSerif-Bold.ttf) normal normal 700 normal>) = 10.335
+DEBUG [2021-02-19 16:22:37,122]: findfont: score(<Font 'DejaVu Serif' (DejaVuSerif.ttf) normal normal 400 normal>) = 10.05
+DEBUG [2021-02-19 16:22:37,123]: findfont: score(<Font 'Liberation Mono' (LiberationMono-Bold.ttf) normal normal 700 normal>) = 10.335
+DEBUG [2021-02-19 16:22:37,125]: findfont: score(<Font 'Liberation Mono' (LiberationMono-Regular.ttf) normal normal 400 normal>) = 10.05
+DEBUG [2021-02-19 16:22:37,126]: findfont: score(<Font 'DejaVu Sans' (DejaVuSans.ttf) normal normal 400 normal>) = 0.05
+DEBUG [2021-02-19 16:22:37,127]: findfont: score(<Font 'Liberation Sans' (LiberationSans-Bold.ttf) normal normal 700 normal>) = 10.335
+DEBUG [2021-02-19 16:22:37,129]: findfont: score(<Font 'DejaVu Serif' (DejaVuSerif-Bold.ttf) normal normal 700 normal>) = 10.335
+DEBUG [2021-02-19 16:22:37,131]: findfont: score(<Font 'Liberation Mono' (LiberationMono-BoldItalic.ttf) italic normal 700 normal>) = 11.335
+DEBUG [2021-02-19 16:22:37,133]: findfont: score(<Font 'DejaVu Sans Mono' (DejaVuSansMono-Bold.ttf) normal normal 700 normal>) = 10.335
+DEBUG [2021-02-19 16:22:37,134]: findfont: score(<Font 'Liberation Sans Narrow' (LiberationSansNarrow-BoldItalic.ttf) italic normal 700 condensed>) = 11.535
+DEBUG [2021-02-19 16:22:37,135]: findfont: score(<Font 'Liberation Serif' (LiberationSerif-Italic.ttf) italic normal 400 normal>) = 11.05
+DEBUG [2021-02-19 16:22:37,137]: findfont: Matching sans\-serif:style=normal:variant=normal:weight=normal:stretch=normal:size=10.0 to DejaVu Sans ('/usr/local/lib/python3.7/site-packages/matplotlib/mpl-data/fonts/ttf/DejaVuSans.ttf') with score of 0.050000.
+DEBUG [2021-02-19 16:22:45,172]: write 3637 bytes to '/tmp/tmpo7xnlw71.gv'
+DEBUG [2021-02-19 16:22:45,173]: run ['dot', '-Kdot', '-Tpng', '-O', 'tmpo7xnlw71.gv']

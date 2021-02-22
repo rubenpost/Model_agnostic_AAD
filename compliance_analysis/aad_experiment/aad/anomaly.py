@@ -182,11 +182,19 @@ def show_anomaly(queried, log, df):
     gviz = dfg_visualization.apply(dfg, log=log[queried:queried+1], variant=dfg_visualization.Variants.PERFORMANCE)
     
     for i in df.select_dtypes(['float','int64']):
+        fig = plt.figure()
+        ax = fig.add_subplot(2, 2, 1)
         sns.displot(df[i], kind='kde', bw_adjust=1.5, fill=True)
         gp = df.groupby('case:concept:name')
         sample = gp.get_group(df['case:concept:name'].iloc[queried])
         plt.axvline(x=sample[i].sum(), color='midnightblue')
         plt.show()
+    
+        # sns.displot(df[i], kind='kde', bw_adjust=1.5, fill=True)
+        # gp = df.groupby('case:concept:name')
+        # sample = gp.get_group(df['case:concept:name'].iloc[queried])
+        # plt.axvline(x=sample[i].sum(), color='midnightblue')
+    plt.show()
     return dfg_visualization.view(gviz)
 # import pandas as pd
 # from bokeh.io import show

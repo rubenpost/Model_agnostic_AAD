@@ -31,3 +31,21 @@ print("Encoding took", end - start, "seconds.")
 model, x_transformed, queried, ridxs_counts, region_extents = detect_anomalies(encoded_data[:100,:], log, preprocessed_data.data)
 
 # %%
+queried = 432
+import matplotlib.pyplot as plt
+import seaborn as sns
+df = preprocessed_data.data
+for i in df.select_dtypes(['float','int64']):
+    for i in range(1,6):
+        fig = plt.figure()
+        ax = fig.add_subplot(2, 2, i)
+        sns.displot(df[i], kind='kde', bw_adjust=1.5, fill=True, ax=ax)
+        gp = df.groupby('case:concept:name')
+        sample = gp.get_group(df['case:concept:name'].iloc[queried])
+        plt.axvline(x=sample[i].sum(), color='midnightblue')
+plt.show()
+# %%
+preprocessed_data.data[preprocessed_data.data['case:concept:name'] == '69']
+# %%
+log[69][7]
+# %%

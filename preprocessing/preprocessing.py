@@ -3,9 +3,9 @@ import pandas as pd
 import pm4py as pm
 import time
 
-class preprocessing:
+class preprocessor:
 
-    def column_rename(data_path, case_id_col, activity_col, timestamp_col, resource_col, log_path=None):
+    def column_rename(data_path, case_id_col, activity_col, timestamp_col, resource_col):
         start = time.time()
 
         # load data
@@ -28,15 +28,9 @@ class preprocessing:
         # Add instance data
         df = datamanager(data = df)
 
-        # Load event log
-        if log_path != None:
-            log = pm.read_xes(log_path)
-        else:
-            log = pm.convert_to_event_log(df.data)
-
         end = time.time()
         print("Preprocessing took", end - start, "seconds.")
-        return df, log
+        return df
 
 class datamanager:
 
@@ -46,6 +40,8 @@ class datamanager:
         dynamic_cat_cols = []
         static_num_cols = []
         dynamic_num_cols = []
+        static_cols = []
+        dynamic_cols = []
 
         # Remove 'case:' from column names
         for column_name in data.columns:
@@ -63,20 +59,26 @@ class datamanager:
         for column in sample_object.columns:
             if sample_object[column].nunique() == 1:
                 static_cat_cols.append(str(column))
+                static_cols.append(str(column))
             else:
                 dynamic_cat_cols.append(str(column))
+                dynamic_cols.append(str(column))
 
         for column in sample_other.columns:
             if sample_other[column].nunique() == 1:
                 static_num_cols.append(str(column))
+                static_cols.append(str(column))
             else:
                 dynamic_num_cols.append(str(column))
+                dynamic_cols.append(str(column))
 
         # base attributes based column types
         self.static_cat_cols = data[static_cat_cols]
         self.dynamic_cat_cols = data[dynamic_cat_cols]
         self.static_num_cols = data[static_num_cols]
         self.dynamic_num_cols = data[dynamic_num_cols]
+        self.static_cols = data[static_cols]
+        self.dynamic_cols = data[dynamic_cols]
         self.num_cols = data[sample_other.columns]
         self.str_cols = data[sample_object.drop(columns=['case:concept:name']).columns]
         self.case_id_col = data['case:concept:name']

@@ -188,7 +188,7 @@ def show_anomaly(queried, log, df):
     sns.set(style="white", palette="muted", color_codes=True, font_scale = 0.8)
 
     # Set up the matplotlib figure
-    fig, ax = plt.subplots(len(df.select_dtypes(['float','int64']).columns), figsize=(7, 35))
+    fig, ax = plt.subplots(len(df.select_dtypes(['float','int64']).columns+1), figsize=(7, 35))
     sns.despine(left=True)
 
     # Plot a filled kernel density estimate
@@ -198,59 +198,81 @@ def show_anomaly(queried, log, df):
         ax[position].axvline(sample[variable].max(), color='royalblue')
         ax[position].legend(labels=['Sample','Population'])
         trans = ax[position].get_xaxis_transform()
-        text = "  \u27f5 "  + sample[variable].max().astype(str)
+        text = "  \u27f5  "  + sample[variable].max().astype(str)
         plt.text(sample[variable].max(), 0.75, text, transform=trans)
         position += 1
 
-    plt.setp(ax, yticks=[])
+    vegetables = list(sample['concept:name'])
+    farmers = list(sample['org:resource'])
+
+    harvest = np.array([[0.8, 2.4, 2.5, 3.9, 0.0, 4.0, 0.0],
+                        [2.4, 0.0, 4.0, 1.0, 2.7, 0.0, 0.0],
+                        [1.1, 2.4, 0.8, 4.3, 1.9, 4.4, 0.0],
+                        [0.6, 0.0, 0.3, 0.0, 3.1, 0.0, 0.0],
+                        [0.7, 1.7, 0.6, 2.6, 2.2, 6.2, 0.0],
+                        [1.3, 1.2, 0.0, 0.0, 0.0, 3.2, 5.1],
+                        [0.1, 2.0, 0.0, 1.4, 0.0, 1.9, 6.3]])
+
+    # We want to show all ticks...
+    ax[9].set_xticks(np.arange(len(farmers)))
+    ax[9].set_yticks(np.arange(len(vegetables)))
+    # ... and label them with the respective list entries
+    ax[9].set_xticklabels(farmers)
+    ax[9].set_yticklabels(vegetables)
+
+    # Rotate the tick labels and set their alignment.
+    plt.setp(ax[9].get_xticklabels(), rotation=45, ha="right",
+            rotation_mode="anchor")
+
+    plt.setp(ax[9], yticks=[])
     plt.tight_layout()
 
     return dfg_visualization.view(gviz), plt.show()
 
 # %%
-import pandas as pd
-from bokeh.io import show
-from bokeh.io.output import output_notebook
-from bokeh.models import (BasicTicker, ColorBar, ColumnDataSource,
-                          LinearColorMapper, PrintfTickFormatter,)
-from bokeh.plotting import figure
-from bokeh.transform import transform
-from bokeh.palettes import RdBu9
-from bokeh.plotting import ColumnDataSource, figure, show
+# import pandas as pd
+# from bokeh.io import show
+# from bokeh.io.output import output_notebook
+# from bokeh.models import (BasicTicker, ColorBar, ColumnDataSource,
+#                           LinearColorMapper, PrintfTickFormatter,)
+# from bokeh.plotting import figure
+# from bokeh.transform import transform
+# from bokeh.palettes import RdBu9
+# from bokeh.plotting import ColumnDataSource, figure, show
 
-gp = data.groupby('case:concept:name')
-sample = gp.get_group('Application_1387439149')
-df1 = sample[['org:resource', 'concept:name']].append(sample[['org:resource', 'concept:name']][:6])
-df = df1.value_counts()
-df = pd.DataFrame(df)
-df = df.reset_index()
-df.rename(columns={0:'count',
-'org:resource':'resource',
-'concept:name':'name'}, inplace=True)
-df
-source = ColumnDataSource(df)
-mapper = LinearColorMapper(palette=RdBu9, low=df['count'].min(), high=df['count'].max())
-tooltips = [
-    ("Resource", "@resource"),
-    ("Activity", "@name"),
-    ("Count", "@count"),
-]
-p = figure(plot_width=df['resource'].nunique()*50, plot_height=df['name'].nunique()*100, title="Activities performed per preparer",
-           y_range=df['name'].unique(), x_range=df['resource'].unique(),x_axis_location="above", tooltips=tooltips)
+# gp = data.groupby('case:concept:name')
+# sample = gp.get_group('Application_1387439149')
+# df1 = sample[['org:resource', 'concept:name']].append(sample[['org:resource', 'concept:name']][:6])
+# df = df1.value_counts()
+# df = pd.DataFrame(df)
+# df = df.reset_index()
+# df.rename(columns={0:'count',
+# 'org:resource':'resource',
+# 'concept:name':'name'}, inplace=True)
+# df
+# source = ColumnDataSource(df)
+# mapper = LinearColorMapper(palette=RdBu9, low=df['count'].min(), high=df['count'].max())
+# tooltips = [
+#     ("Resource", "@resource"),
+#     ("Activity", "@name"),
+#     ("Count", "@count"),
+# ]
+# p = figure(plot_width=df['resource'].nunique()*50, plot_height=df['name'].nunique()*100, title="Activities performed per preparer",
+#            y_range=df['name'].unique(), x_range=df['resource'].unique(),x_axis_location="above", tooltips=tooltips)
 
-p.rect(y="name", x="resource", width=1, height=1, source=source,
-       line_color=None, fill_color=transform('count', mapper))
+# p.rect(y="name", x="resource", width=1, height=1, source=source,
+#        line_color=None, fill_color=transform('count', mapper))
 
-p.axis.axis_line_color = None
-p.axis.major_tick_line_color = None
-p.axis.major_label_text_font_size = "13px"
-p.axis.major_label_standoff = 0
-p.xaxis.major_label_orientation = 1.2
-p.outline_line_color = None
+# p.axis.axis_line_color = None
+# p.axis.major_tick_line_color = None
+# p.axis.major_label_text_font_size = "13px"
+# p.axis.major_label_standoff = 0
+# p.xaxis.major_label_orientation = 1.2
+# p.outline_line_color = None
 
-# p.xgrid.visible = False
-# p.ygrid.visible = False
+# # p.xgrid.visible = False
+# # p.ygrid.visible = False
 
-output_notebook()
-show(p)
-# %%
+# output_notebook()
+# show(p)
+# # %%

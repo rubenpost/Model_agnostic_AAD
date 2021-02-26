@@ -52,9 +52,15 @@ class datamanager:
         # get fist case in the data
         gp = data.groupby('case:concept:name')
         sample = gp.get_group(data['case:concept:name'].iloc[0])
+        sample.drop(['time:timestamp'], axis=1, inplace=True)
         sample_object = sample.select_dtypes(include=['object'])
-        sample_other = sample.drop(sample_object.columns,axis = 1)
-
+        sample_other = sample.drop(sample_object.columns, axis = 1)
+        for column in sample_other.columns:
+            if sample_other[column].nunique() == 2:
+                sample_object.append(sample_other[column])
+                sample_other.drop(str(column), inplace=True)
+        print(sample_other.columns)
+        print(sample_object.columns)
         # base column types based on first case data
         for column in sample_object.columns:
             if sample_object[column].nunique() == 1:
@@ -71,6 +77,8 @@ class datamanager:
             else:
                 dynamic_num_cols.append(str(column))
                 dynamic_cols.append(str(column))
+        
+        # Remove boolean columns from numeric and append to categoric
 
         # base attributes based column types
         self.static_cat_cols = data[static_cat_cols]

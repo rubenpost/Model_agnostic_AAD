@@ -1,6 +1,7 @@
 # %%
 # Imports
 import time
+import pandas as pd
 import numpy as np
 import pm4py as pm
 from preprocessing.preprocessing import preprocessor
@@ -26,6 +27,31 @@ print("Encoding took", end - start, "seconds.")
 
 # %%
 # Detect anomalies 
-aad = detect_anomalies(static_data, preprocessed_data.data)
+aad = detect_anomalies(encoded_data, preprocessed_data.data)
 
+# %%
+static_num_cols = pd.concat([preprocessed_data.static_num_cols, preprocessed_data.case_id_col], axis=1)
+encoded_snc = static_num_cols.groupby(['case:concept:name'], as_index=False).agg(['max'])
+dummies = pd.get_dummies(preprocessed_data.static_cat_cols[['EventOrigin', 'lifecycle:transition', 'LoanGoal', 'ApplicationType']])
+static_cat = pd.concat([preprocessed_data.case_id_col, dummies], axis=1)
+encoded_scc = static_cat.groupby(['case:concept:name'], as_index=False).agg(['max'])
+static_data = pd.concat([encoded_snc, encoded_scc], axis=1)
+
+# %%
+# dynamic_num_cols = pd.concat([preprocessed_data.dynamic_num_cols, preprocessed_data.case_id_col], axis=1)
+# encoded_dnc = dynamic_num_cols.groupby(['case:concept:name'], as_index=False).agg(['max'])
+dummies = pd.get_dummies(preprocessed_data.dynamic_cat_cols[['Action', 'org:resource', 'concept:name']])
+dynamic_cat = pd.concat([preprocessed_data.case_id_col, dummies], axis=1)
+encoded_dcc = dynamic_cat.groupby(['case:concept:name'], as_index=False).agg(['max'])
+dynamic_data = pd.concat([encoded_dnc, encoded_dcc], axis=1)
+# %%
+encoded_data = pd.concat([static_data, encoded_dcc], axis=1)
+encoded_data = np.asarray(encoded_data)
+# %%
+encoded_data.dtypes.unique()
+# %%
+preprocessed_data.dynamic_num_cols
+# %%
+np.set_printoptions(suppress=True)
+encoded_data
 # %%

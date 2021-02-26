@@ -116,70 +116,7 @@ def detect_anomalies(x, df):
     end = time.time()
     print("You have identified %s anomalies. In total, AAD took", end - start, "seconds." % found)
 
-
-
-#     generate compact descriptions for the detected anomalies
-#     ridxs_counts, region_extents = None, None
-#     if len(ha) > 0:
-#         ridxs_counts, region_extents = describe_instances(x, np.array(ha), model=model,
-#                                                         opts=opts, interpretable=True)
-#         logger.debug("selected region indexes and corresponding instance counts (among %d):\n%s" %
-#                     (len(ha), str(list(ridxs_counts))))
-#         logger.debug("region_extents: these are of the form [{feature_index: (feature range), ...}, ...]\n%s" %
-#                     (str(region_extents)))
-#     return ordered_idxs, model, x_transformed, queried #, ridxs_counts, region_extents
-
-# def describe_instances(x, instance_indexes, model, opts, interpretable=False):
-#     """ Generates compact descriptions for the input instances
-
-#     :param x: np.ndarray
-#         The instance matrix with ALL instances
-#     :param instance_indexes: np.array(dtype=int)
-#         Indexes for the instances which need to be described
-#     :param model: Aad
-#         Trained Aad model
-#     :param opts: AadOpts
-#     :return: tuple, list(map)
-#         tuple: (region indexes, #instances among instance_indexes that fall in the region)
-#         list(map): list of region extents where each region extent is a
-#             map {feature index: feature range}
-#     """
-#     if not is_forest_detector(opts.detector_type):
-#         raise ValueError("Descriptions only supported by forest-based detectors")
-
-#     # setup dummy y
-#     y = np.zeros(x.shape[0], dtype=np.int32)
-#     y[instance_indexes] = 1
-
-#     if interpretable:
-#         if opts.bayesian_rules:
-#             # use BayesianRulesetsDescriber to get compact and [human] interpretable rules
-#             describer = BayesianRulesetsDescriber(x, y=y, model=model, opts=opts)
-#         else:
-#             # use CompactDescriber to get compact and [human] interpretable rules
-#             describer = CompactDescriber(x, y=y, model=model, opts=opts)
-#     else:
-#         # use MinimumVolumeCoverDescriber to get simply compact (minimum volume) rules
-#         describer = MinimumVolumeCoverDescriber(x, y=y, model=model, opts=opts)
-
-#     selected_region_idxs, desc_regions, rules = describer.describe(instance_indexes)
-
-#     _, memberships = get_region_memberships(x, model, instance_indexes, selected_region_idxs)
-#     instances_in_each_region = np.sum(memberships, axis=0)
-#     if len(instance_indexes) < np.sum(instances_in_each_region):
-#         logger.debug("\nNote: len instance_indexes (%d) < sum of instances_in_each_region (%d)\n"
-#                     "because some regions overlap and cover the same instance(s)." %
-#                     (len(instance_indexes), int(np.sum(instances_in_each_region))))
-
-#     if rules is not None:
-#         rule_details = []
-#         for rule in rules:
-#             rule_details.append("%s: %d/%d instances" % (str(rule),
-#                                                         len(rule.where_satisfied(x[instance_indexes])),
-#                                                         len(instance_indexes)))
-#         logger.debug("Rules:\n  %s" % "\n  ".join(rule_details))
-
-#     return zip(selected_region_idxs, instances_in_each_region), desc_regions
+    return ordered_idxs, model, x_transformed, queried
 
 def show_anomaly(queried, df):
     # Grap queried case from population
@@ -212,6 +149,7 @@ def show_anomaly(queried, df):
         user_data = sample.groupby(['concept:name'], as_index=False).agg({user:'sum'})
         table_input = pd.concat([table_input, user_data.iloc[:,1:]], axis=1)
     table_input = np.asarray(table_input.iloc[:,1:])
+
     activities, resources = list(queried_case['concept:name'].unique()), list(queried_case['org:resource'].unique())
     ax[position].imshow(table_input, cmap='Blues')
     # We want to show all ticks...
@@ -233,11 +171,12 @@ def show_anomaly(queried, df):
 
     for variable in df.select_dtypes(['float','int64']).columns:
         sns.distplot(df[variable], hist = False, color="orange", kde_kws={"shade": True}, ax=ax[position])
-        ax[position].axvline(queried_case[variable].max(), color='royalblue')
+        variable_value = queried_case[variable].max()
+        ax[position].axvline(variable_value, color='royalblue')
         ax[position].legend(labels=['Sample','Population'])
         trans = ax[position].get_xaxis_transform()
-        text = "  \u27f5  "  + queried_case[variable].max().astype(str)
-        plt.text(queried_case[variable].max(), 0.75, text, transform=trans)
+        text = "  \u27f5  "  + variable_value.astype(str)
+        plt.text(variable_value, 0.75, text, transform=trans)
         position += 1
     
     plt.savefig('testplot.pdf')

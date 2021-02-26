@@ -55,12 +55,7 @@ class datamanager:
         sample.drop(['time:timestamp'], axis=1, inplace=True)
         sample_object = sample.select_dtypes(include=['object'])
         sample_other = sample.drop(sample_object.columns, axis = 1)
-        for column in sample_other.columns:
-            if sample_other[column].nunique() == 2:
-                sample_object.append(sample_other[column])
-                sample_other.drop(str(column), inplace=True)
-        print(sample_other.columns)
-        print(sample_object.columns)
+
         # base column types based on first case data
         for column in sample_object.columns:
             if sample_object[column].nunique() == 1:

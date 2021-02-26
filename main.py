@@ -55,3 +55,13 @@ preprocessed_data.dynamic_num_cols
 np.set_printoptions(suppress=True)
 encoded_data
 # %%
+for column in preprocessed_data.data.columns:
+    if preprocessed_data.data[column].nunique() == 2 or preprocessed_data.data[column].nunique() == 1:
+        print(column)
+# %%
+preprocessed_data.str_cols.nunique()#.columns
+# %%
+df = pd.read_parquet('/workspaces/thesis/data/preprocessed/2017_O.gzip')
+# %%
+df.dtypes
+# %%

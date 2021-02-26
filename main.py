@@ -65,3 +65,9 @@ df = pd.read_parquet('/workspaces/thesis/data/preprocessed/2017_O.gzip')
 # %%
 df.dtypes
 # %%
+df
+# %%
+df.describe(include='all')
+# %%
+df['concept:name'].nunique()
+# %%

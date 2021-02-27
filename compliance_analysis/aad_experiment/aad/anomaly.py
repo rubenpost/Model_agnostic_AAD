@@ -120,12 +120,16 @@ def detect_anomalies(x, df):
 
 def show_anomaly(queried, df):
     # Grap queried case from population
-    gp = df.groupby('case:concept:name')
-    queried_case = gp.get_group(df['case:concept:name'].iloc[queried])
+    gp = df.data.groupby('case:concept:name')
+    queried_case = gp.get_group(df.data['case:concept:name'].iloc[queried])
     log = pm.convert_to_event_log(queried_case)
     
     sns.set(style="white", palette="muted", color_codes=True, font_scale = 1)
-    fig, ax = plt.subplots(len(df.select_dtypes(['float','int64']).columns)+2, figsize=(10, (len(df.select_dtypes(['float','int64']).columns)+2)*10))
+
+    for column in df.num_cols.columns:
+        if df.num_cols[column].nunique() <= 2:
+            df.num_cols.drop(column, axis=1, inplace=True)
+    fig, ax = plt.subplots(len(df.num_cols.columns)+2, figsize=(10, (len(df.num_cols.columns)+2)*10))
     sns.despine(left=True)
     position = 0
 
@@ -159,7 +163,7 @@ def show_anomaly(queried, df):
     ax[position].set_xticklabels(resources)
     ax[position].set_yticklabels(activities)
     # Rotate the tick labels and set their alignment.
-    plt.setp(ax[8].get_xticklabels(), rotation=45, ha="right",
+    plt.setp(ax[position].get_xticklabels(), rotation=45, ha="right",
             rotation_mode="anchor")
     # Loop over data dimensions and create text annotations.
     for i in range(len(activities)):
@@ -168,9 +172,8 @@ def show_anomaly(queried, df):
                         ha="center", va="center", color="w")
     ax[position].set_title("Activities performed per resource", y=1.02)
     position += 1
-
-    for variable in df.select_dtypes(['float','int64']).columns:
-        sns.distplot(df[variable], hist = False, color="orange", kde_kws={"shade": True}, ax=ax[position])
+    for variable in df.num_cols.columns:
+        sns.distplot(df.num_cols[variable], hist = False, color="orange", kde_kws={"shade": True}, ax=ax[position])
         variable_value = queried_case[variable].max()
         ax[position].axvline(variable_value, color='royalblue')
         ax[position].legend(labels=['Sample','Population'])

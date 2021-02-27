@@ -88,3 +88,4 @@ class datamanager:
         self.data = data
 
 # %%
+ 

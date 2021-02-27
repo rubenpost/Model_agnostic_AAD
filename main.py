@@ -1,6 +1,7 @@
 # %%
 # Imports
 import time
+import importlib
 import pandas as pd
 import numpy as np
 import pm4py as pm
@@ -19,34 +20,28 @@ preprocessed_data = preprocessor.column_rename(
 # Encode data #REWORK THIS TO INCLUDE ACTUAL ENCODING..
 start = time.time()
 
-static_data = encoder.static_encoder(static_cols = preprocessed_data.static_cols)
-# dynamic_data = encoder.dynamic_encoder(dynamic_cols = preprocessed_data.dynamic_cols)
-
-end = time.time()
-print("Encoding took", end - start, "seconds.")
-
-# %%
-# Detect anomalies 
-aad = detect_anomalies(encoded_data, preprocessed_data.data)
-
-# %%
 static_num_cols = pd.concat([preprocessed_data.static_num_cols, preprocessed_data.case_id_col], axis=1)
 encoded_snc = static_num_cols.groupby(['case:concept:name'], as_index=False).agg(['max'])
 dummies = pd.get_dummies(preprocessed_data.static_cat_cols[['EventOrigin', 'lifecycle:transition', 'LoanGoal', 'ApplicationType']])
 static_cat = pd.concat([preprocessed_data.case_id_col, dummies], axis=1)
 encoded_scc = static_cat.groupby(['case:concept:name'], as_index=False).agg(['max'])
 static_data = pd.concat([encoded_snc, encoded_scc], axis=1)
-
-# %%
-# dynamic_num_cols = pd.concat([preprocessed_data.dynamic_num_cols, preprocessed_data.case_id_col], axis=1)
-# encoded_dnc = dynamic_num_cols.groupby(['case:concept:name'], as_index=False).agg(['max'])
 dummies = pd.get_dummies(preprocessed_data.dynamic_cat_cols[['Action', 'org:resource', 'concept:name']])
 dynamic_cat = pd.concat([preprocessed_data.case_id_col, dummies], axis=1)
 encoded_dcc = dynamic_cat.groupby(['case:concept:name'], as_index=False).agg(['max'])
-dynamic_data = pd.concat([encoded_dnc, encoded_dcc], axis=1)
-# %%
+dynamic_data = pd.concat([encoded_dcc, encoded_dcc], axis=1)
+
 encoded_data = pd.concat([static_data, encoded_dcc], axis=1)
 encoded_data = np.asarray(encoded_data)
+
+end = time.time()
+print("Encoding took", end - start, "seconds.")
+
+# %%
+# Detect anomalies 
+aad = detect_anomalies(encoded_data, preprocessed_data)
+
+# %%
 # %%
 encoded_data.dtypes.unique()
 # %%
@@ -70,4 +65,18 @@ df
 df.describe(include='all')
 # %%
 df['concept:name'].nunique()
+# %%
+
+# %%
+encoded_data.shape
+# %%
+a = where(preprocessed_data.num_cols.nunique() > 2
+# %%
+len(preprocessed_data.num_cols.columns)
+# %%
+for column in preprocessed_data.num_cols.columns:
+    if preprocessed_data.num_cols[column].nunique() <= 2:
+        preprocessed_data.num_cols.drop(column, axis=1, inplace=True)
+# %%
+preprocessed_data.num_cols
 # %%

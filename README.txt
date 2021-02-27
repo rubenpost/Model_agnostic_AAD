@@ -1,3 +1,4 @@
+Active Anomaly Detection (AAD) with process mining enables end-users to both gain insight in the process of the client and train the algorith at the same time.
 DESCRIPTION
 --------------------
 

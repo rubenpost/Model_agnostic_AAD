@@ -28,7 +28,7 @@ from pm4py.visualization.dfg import visualizer as dfg_visualization
 # %%
 logger = logging.getLogger(__name__)
 
-def get_debug_args(budget=10, detector_type=AAD_IFOREST):
+def get_debug_args(budget=5, detector_type=AAD_IFOREST):
     # return the AAD parameters what will be parsed later
     return ["--resultsdir=./temp", "--randseed=42",
             "--reruns=1",
@@ -114,7 +114,7 @@ def detect_anomalies(x, df):
     # the number of anomalies discovered within the budget while incorporating feedback
     found = np.sum(y_labeled[queried])
     end = time.time()
-    print("You have identified %s anomalies. In total, AAD took", end - start, "seconds." % found)
+    print("You have identified %s anomalies. In total, AAD took" % found, end - start, "seconds.")
 
     return ordered_idxs, model, x_transformed, queried
 

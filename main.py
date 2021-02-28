@@ -5,6 +5,7 @@ import importlib
 import pandas as pd
 import numpy as np
 import pm4py as pm
+from aad_experiment.common.utils import dataframe_to_matrix
 from preprocessing.preprocessing import preprocessor
 from preprocessing.encoding import encoder
 from compliance_analysis.aad_experiment.aad.anomaly import detect_anomalies
@@ -39,44 +40,57 @@ print("Encoding took", end - start, "seconds.")
 
 # %%
 # Detect anomalies 
-aad = detect_anomalies(encoded_data, preprocessed_data)
+aad = detect_anomalies(np.asarray(data), preprocessed_data)
+
+# %%
+scored = aad[1].decision_function(data)
 
 # %%
 # %%
-encoded_data.dtypes.unique()
+aad[0]
 # %%
-preprocessed_data.dynamic_num_cols
+a = pd.DataFrame(scored)
+a.sort_values(by=0,ascending=False)
 # %%
-np.set_printoptions(suppress=True)
+a
+# %%
+from sklearn.ensemble import IsolationForest
+model=IsolationForest()
+model.fit(dataframe_to_matrix)
+b = pd.DataFrame()
+b["scores"] = model.decision_function(data)
+# %%
+print(b.sort_values(by='scores', ascending=False))
+print(a.sort_values(by=0,ascending=False))
+# %%
+pd.set_option("display.max_rows", 999)
+# %%
+a['index'] = a.index
+a['index b'] = b.index
+# %%
+test = a['index'] == a['index b']
+# %%
+test.value_counts()
+# %%
+a['scores b'] = b['scores']
+# %%
+np.append(encoded_data, np.asarray(a))
+# %%
+a[0]
+# %%
 encoded_data
-# %%
-for column in preprocessed_data.data.columns:
-    if preprocessed_data.data[column].nunique() == 2 or preprocessed_data.data[column].nunique() == 1:
-        print(column)
-# %%
-preprocessed_data.str_cols.nunique()#.columns
-# %%
-df = pd.read_parquet('/workspaces/thesis/data/preprocessed/2017_O.gzip')
-# %%
-df.dtypes
-# %%
-df
-# %%
-df.describe(include='all')
-# %%
-df['concept:name'].nunique()
-# %%
-
 # %%
 encoded_data.shape
 # %%
-a = where(preprocessed_data.num_cols.nunique() > 2
+a
 # %%
-len(preprocessed_data.num_cols.columns)
+data = pd.DataFrame(encoded_data)
 # %%
-for column in preprocessed_data.num_cols.columns:
-    if preprocessed_data.num_cols[column].nunique() <= 2:
-        preprocessed_data.num_cols.drop(column, axis=1, inplace=True)
+a
 # %%
-preprocessed_data.num_cols
+data['score'] = a
+# %%
+data
+# %%
+aad[1].get_params()
 # %%

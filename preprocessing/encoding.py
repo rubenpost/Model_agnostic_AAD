@@ -1,9 +1,9 @@
 # %%
 class encoder:
 
-    def static_encoder(static_cols):
-        return print(static_cols)
+    def __init__(self, data, encoders):
+        for key, value in encoders:
+            print(data[key], value)
 
-    # def dynamic_encoder(dynamic_cols):
-    #     print('hello')
-# %%
+    def mean_encoder(data):
+        

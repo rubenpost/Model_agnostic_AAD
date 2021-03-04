@@ -5,6 +5,7 @@ sys.path.insert(1,"/workspaces/thesis/compliance_analysis")
 import logging
 import tempfile
 import image
+import math
 import pm4py as pm
 import numpy as np
 import seaborn as sns
@@ -28,7 +29,7 @@ from pm4py.visualization.dfg import visualizer as dfg_visualization
 # %%
 logger = logging.getLogger(__name__)
 
-def get_debug_args(budget=5, detector_type=AAD_IFOREST):
+def get_debug_args(budget=4, detector_type=AAD_IFOREST):
     # return the AAD parameters what will be parsed later
     return ["--resultsdir=./temp", "--randseed=42",
             "--reruns=1",
@@ -121,10 +122,10 @@ def detect_anomalies(x, df):
 def show_anomaly(queried, df):
     # Grap queried case from population
     gp = df.data.groupby('case:concept:name')
-    queried_case = gp.get_group(df.data['case:concept:name'].iloc[queried])
+    queried_case = gp.get_group(df.data['case:concept:name'].unique()[queried])
     log = pm.convert_to_event_log(queried_case)
     
-    sns.set(style="white", palette="muted", color_codes=True, font_scale = 1)
+    sns.set(style="white", palette="muted", color_codes=True, font_scale = 1.25)
 
     for column in df.num_cols.columns:
         if df.num_cols[column].nunique() <= 2:
@@ -143,7 +144,7 @@ def show_anomaly(queried, df):
     ax[position].axis('off')
     ax[position].imshow(img)
     position += 1
-    # Plot a filled kernel density estimate
+    # Plot a histogram per numeric variable
 
     sample = pd.DataFrame(queried_case[['concept:name','org:resource']].value_counts().reset_index())
     sample = pd.DataFrame(pd.concat([sample['concept:name'], pd.get_dummies(sample['org:resource'])], axis=1).value_counts()).reset_index()
@@ -172,17 +173,29 @@ def show_anomaly(queried, df):
                         ha="center", va="center", color="w")
     ax[position].set_title("Activities performed per resource", y=1.02)
     position += 1
+
+    data = pd.concat([df.num_cols, df.case_id_col], axis=1)
+    plot_data = data.dropna(subset=df.num_cols.columns).groupby(['case:concept:name']).max().reset_index()
+    cmap = plt.get_cmap('jet')
     for variable in df.num_cols.columns:
-        sns.distplot(df.num_cols[variable], hist = False, color="orange", kde_kws={"shade": True}, ax=ax[position])
+        sns.distplot(plot_data[variable], norm_hist=False, kde=False, color="orange", ax=ax[position], bins=15)
         variable_value = queried_case[variable].max()
-        ax[position].axvline(variable_value, color='royalblue')
-        ax[position].legend(labels=['Sample','Population'])
+        patches = ax[position].patches
+        bin_width = patches[0].get_width()
+        bin_number = round(variable_value / bin_width)
+        patches[bin_number].set_facecolor(cmap(0,5))
+        ax[position].axvline(x=bin_width*bin_number, color=cmap(0,5), ymax=0)
         trans = ax[position].get_xaxis_transform()
-        text = "  \u27f5  "  + variable_value.astype(str)
-        plt.text(variable_value, 0.75, text, transform=trans)
+        text = "\u2193"  + variable_value.astype(str)
+        ax[position].legend(labels=['Sample','Population'])
+        ax[position].set_ylabel('Count')
+        heights = [h.get_height() for h in patches]
+        text_y = (patches[bin_number].get_height()/max(heights))*1.25
+        text_x = (bin_width*bin_number)+bin_width/2
+        plt.text(text_x, text_y, text, transform=trans)
         position += 1
     
-    plt.savefig('testplot.pdf')
+    #plt.savefig('testplot.pdf')
 
     return plt.show()
 # %%

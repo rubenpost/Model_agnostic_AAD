@@ -5,5 +5,4 @@ class encoder:
         for key, value in encoders:
             print(data[key], value)
 
-    def mean_encoder(data):
-        
+   # def mean_encoder(data):

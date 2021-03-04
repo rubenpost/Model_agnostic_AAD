@@ -190,7 +190,7 @@ def show_anomaly(queried, df):
         ax[position].legend(labels=['Sample','Population'])
         ax[position].set_ylabel('Count')
         heights = [h.get_height() for h in patches]
-        text_y = (patches[bin_number].get_height()/max(heights))*1.25
+        text_y = (patches[bin_number].get_height()/max(heights))+0.15
         text_x = (bin_width*bin_number)+bin_width/2
         plt.text(text_x, text_y, text, transform=trans)
         position += 1

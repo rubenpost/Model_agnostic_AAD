@@ -9,12 +9,13 @@ from preprocessing import encoding
 from preprocessing.preprocessing import preprocessor
 from compliance_analysis.compliance_rules.compliance_checker import filter
 from compliance_analysis.aad_experiment.aad.anomaly import detect_anomalies
+from compliance_analysis.aad_experiment.aad.anomaly import show_anomaly
 tqdm.pandas()
-
+data_source = '/workspaces/thesis/data/raw/BPI_Challenge_2017.gzip'
 # %%
 # Preprocess data
 preprocessed_data = preprocessor.column_rename(
-    data_path = '/workspaces/thesis/data/raw/BPI_Challenge_2017.gzip',
+    data_path = data_source,
     case_id_col = 'case:concept:name', activity_col = 'concept:name', 
     timestamp_col = 'time:timestamp', resource_col = 'org:resource')
 
@@ -38,7 +39,7 @@ dynamic_cat = pd.concat([preprocessed_data.case_id_col, dummies], axis=1)
 encoded_dcc = dynamic_cat.groupby(['case:concept:name'], as_index=False).agg(['max'])
 dynamic_data = pd.concat([encoded_dcc, encoded_dcc], axis=1)
 
-encoded_data = pd.concat([static_data, encoded_dcc], axis=1)
+encoded_data = pd.concat([dynamic_data, static_data], axis=1)
 encoded_data = np.asarray(encoded_data)
 
 end = time.time()
@@ -49,7 +50,7 @@ print("Encoding took", end - start, "seconds.")
 aad = detect_anomalies(encoded_data, preprocessed_data)
 
 # %%
-preprocessed_data.dynamic_cat_cols
+encoded_data
 # %%
 imp.reload(module=encoding)
 encoders = {'RequestedAmount':'Mean'}
@@ -152,4 +153,27 @@ np.histogram
 for i in range (0,19): print(patches[i].get_height())
 # %%
 round(2.7)
+# %%
+preprocessed_data.data.sort_values(by='concept:name')
+# %%
+# %%
+# Imports
+import time
+import pandas as pd
+import numpy as np
+import importlib as imp
+from tqdm.auto import tqdm
+from preprocessing import encoding
+from preprocessing.preprocessing import preprocessor
+from compliance_analysis.compliance_rules.compliance_checker import filter
+from compliance_analysis.aad_experiment.aad.anomaly import detect_anomalies
+from compliance_analysis.aad_experiment.aad.anomaly import show_anomaly
+tqdm.pandas()
+data_source = '/workspaces/thesis/data/raw/BPI_Challenge_2017.gzip'
+# Preprocess data
+preprocessed_data = preprocessor.column_rename(
+    data_path = data_source,
+    case_id_col = 'case:concept:name', activity_col = 'concept:name', 
+    timestamp_col = 'time:timestamp', resource_col = 'org:resource')
+show_anomaly(5, preprocessed_data)
 # %%

@@ -1,6 +1,6 @@
 # %%
 import pandas as pd
-import pm4py as pm
+import numpy as np
 import time
 
 class preprocessor:
@@ -82,8 +82,8 @@ class datamanager:
         self.dynamic_num_cols = data[dynamic_num_cols]
         self.static_cols = data[static_cols]
         self.dynamic_cols = data[dynamic_cols]
-        self.num_cols = data[sample_other.columns]
-        self.str_cols = data[sample_object.drop(columns=['case:concept:name']).columns]
+        self.num_cols = data.select_dtypes(include='number')
+        self.object_cols = data.select_dtypes(include='object')
         self.case_id_col = data['case:concept:name']
         self.data = data
 

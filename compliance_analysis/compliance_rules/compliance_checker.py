@@ -1,7 +1,7 @@
 # %%
 import numpy as np
 
-class filter:
+class enrich:
 
     def bounded_existence(self, activity):
         feature_name = 'bounded_existence_%s' % (activity)
@@ -26,4 +26,10 @@ class filter:
         else:
             self[feature_name] = 0
         return self   
+    
+    def feature_engineering(self):
+        case_length = self['time:timestamp'].max() - self['time:timestamp'].min()
+        self['case_length'] = ((case_length.total_seconds()/60)/60)/24
+        self['activity_count'] = self['concept:name'].nunique()
+        return self
 # %%

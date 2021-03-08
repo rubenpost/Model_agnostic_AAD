@@ -121,11 +121,12 @@ def detect_anomalies(x, df):
 
 def show_anomaly(queried, df):
     # Grap queried case from population
+    print(queried)
     gp = df.data.groupby('case:concept:name')
     queried_case = gp.get_group(df.data['case:concept:name'].unique()[queried])
     log = pm.convert_to_event_log(queried_case)
     
-    sns.set(style="white", palette="muted", color_codes=True, font_scale = 1.25)
+    sns.set(style="white", color_codes=True, font_scale = 1.25)
 
     for column in df.num_cols.columns:
         if df.num_cols[column].nunique() <= 2:
@@ -153,19 +154,24 @@ def show_anomaly(queried, df):
     for user in user_columns.columns:
         user_data = sample.groupby(['concept:name'], as_index=False).agg({user:'sum'})
         table_input = pd.concat([table_input, user_data.iloc[:,1:]], axis=1)
+    table_input.sort_values(by='concept:name', inplace=True)
     table_input = np.asarray(table_input.iloc[:,1:])
 
-    activities, resources = list(queried_case['concept:name'].unique()), list(queried_case['org:resource'].unique())
+    activities, resources = sorted(list(queried_case['concept:name'].unique())), list(queried_case['org:resource'].unique())
     ax[position].imshow(table_input, cmap='Blues')
+
     # We want to show all ticks...
     ax[position].set_xticks(np.arange(len(resources)))
     ax[position].set_yticks(np.arange(len(activities)))
+
     # ... and label them with the respective list entries
     ax[position].set_xticklabels(resources)
     ax[position].set_yticklabels(activities)
+
     # Rotate the tick labels and set their alignment.
     plt.setp(ax[position].get_xticklabels(), rotation=45, ha="right",
             rotation_mode="anchor")
+            
     # Loop over data dimensions and create text annotations.
     for i in range(len(activities)):
         for j in range(len(resources)):
@@ -176,26 +182,33 @@ def show_anomaly(queried, df):
 
     data = pd.concat([df.num_cols, df.case_id_col], axis=1)
     plot_data = data.dropna(subset=df.num_cols.columns).groupby(['case:concept:name']).max().reset_index()
-    cmap = plt.get_cmap('jet')
+    cmap = plt.get_cmap('Blues')
+
     for variable in df.num_cols.columns:
-        sns.distplot(plot_data[variable], norm_hist=False, kde=False, color="orange", ax=ax[position], bins=15)
-        variable_value = queried_case[variable].max()
-        patches = ax[position].patches
-        bin_width = patches[0].get_width()
-        bin_number = round(variable_value / bin_width)
-        patches[bin_number].set_facecolor(cmap(0,5))
-        ax[position].axvline(x=bin_width*bin_number, color=cmap(0,5), ymax=0)
-        trans = ax[position].get_xaxis_transform()
-        text = "\u2193"  + variable_value.astype(str)
-        ax[position].legend(labels=['Sample','Population'])
-        ax[position].set_ylabel('Count')
-        heights = [h.get_height() for h in patches]
-        text_y = (patches[bin_number].get_height()/max(heights))+0.15
-        text_x = (bin_width*bin_number)+bin_width/2
-        plt.text(text_x, text_y, text, transform=trans)
+        sns.histplot(plot_data[variable], color="darkblue", ax=ax[position], bins=15)
+        # variable_value = queried_case[variable].max()
+        # patches = ax[position].patches
+        # bin_width = patches[0].get_width()
+        # bin_number = round(variable_value / bin_width)
+        # patches[bin_number].set_facecolor('blue')
+        # ax[position].axvline(x=bin_width*bin_number, color=cmap(1), ymax=0)
+        # trans = ax[position].get_xaxis_transform()
+        # text = "\u2193"  + variable_value.astype(str)
+        # ax[position].legend(labels=['Sample','Population'])
+        # ax[position].set_ylabel('Count')
+        # ax[position].xaxis.labelpad = 20
+        # ax[position].yaxis.labelpad = 20
+        # heights = [h.get_height() for h in patches]
+        # if variable == 'OfferedAmount':
+        #     text_y = (patches[bin_number].get_height()/max(heights))+0.05
+        #     text_x = (bin_width*bin_number)+(bin_width*1.5)
+        # else:
+        #     text_y = (patches[bin_number].get_height()/max(heights))+0.05
+        #     text_x = (bin_width*bin_number)+bin_width/2
+        # plt.text(text_x, text_y, text, transform=trans)
         position += 1
     
-    #plt.savefig('testplot.pdf')
+    plt.savefig('testplot_.png')
 
     return plt.show()
 # %%

@@ -120,20 +120,24 @@ def detect_anomalies(x, df):
     return ordered_idxs, model, x_transformed, queried
 
 def show_anomaly(queried, df):
+
     # Grap queried case from population
-    print(queried)
     gp = df.data.groupby('case:concept:name')
     queried_case = gp.get_group(df.data['case:concept:name'].unique()[queried])
+
+    # Create event log from queried case
     log = pm.convert_to_event_log(queried_case)
     
+    # Set seaborn style, subplot size, and initiate position number
     sns.set(style="white", color_codes=True, font_scale = 1.25)
+    sns.despine(left=True)
+    fig, ax = plt.subplots(len(df.num_cols.columns)+1, figsize=(10, (len(df.num_cols.columns)+2)*10))
+    position = 0
 
+    # Remove boolean columns from dataframe as visualization would not provide benefit
     for column in df.num_cols.columns:
         if df.num_cols[column].nunique() <= 2:
             df.num_cols.drop(column, axis=1, inplace=True)
-    fig, ax = plt.subplots(len(df.num_cols.columns)+2, figsize=(10, (len(df.num_cols.columns)+2)*10))
-    sns.despine(left=True)
-    position = 0
 
     # Visualize process trace
     dfg = dfg_discovery.apply(log, variant=dfg_discovery.Variants.PERFORMANCE)
@@ -144,9 +148,10 @@ def show_anomaly(queried, df):
     img = mpimg.imread(file_name.name)
     ax[position].axis('off')
     ax[position].imshow(img)
+    ax[position].set_title("Process model of case %s" (queried.astype(str)))
     position += 1
-    # Plot a histogram per numeric variable
 
+    # Create input for research/activity table
     sample = pd.DataFrame(queried_case[['concept:name','org:resource']].value_counts().reset_index())
     sample = pd.DataFrame(pd.concat([sample['concept:name'], pd.get_dummies(sample['org:resource'])], axis=1).value_counts()).reset_index()
     user_columns = sample.iloc[:,1:-1]
@@ -157,18 +162,14 @@ def show_anomaly(queried, df):
     table_input.sort_values(by='concept:name', inplace=True)
     table_input = np.asarray(table_input.iloc[:,1:])
 
+    # Create custom table
     activities, resources = sorted(list(queried_case['concept:name'].unique())), list(queried_case['org:resource'].unique())
     ax[position].imshow(table_input, cmap='Blues')
-
-    # We want to show all ticks...
     ax[position].set_xticks(np.arange(len(resources)))
     ax[position].set_yticks(np.arange(len(activities)))
-
-    # ... and label them with the respective list entries
     ax[position].set_xticklabels(resources)
     ax[position].set_yticklabels(activities)
-
-    # Rotate the tick labels and set their alignment.
+    ax[position].set_title("Activities performed per resource", y=1.02)
     plt.setp(ax[position].get_xticklabels(), rotation=45, ha="right",
             rotation_mode="anchor")
             
@@ -177,38 +178,54 @@ def show_anomaly(queried, df):
         for j in range(len(resources)):
             text = ax[position].text(j, i, table_input[i, j],
                         ha="center", va="center", color="w")
-    ax[position].set_title("Activities performed per resource", y=1.02)
+
     position += 1
 
+    # Create dataframe used to make base plots
     data = pd.concat([df.num_cols, df.case_id_col], axis=1)
     plot_data = data.dropna(subset=df.num_cols.columns).groupby(['case:concept:name']).max().reset_index()
-    cmap = plt.get_cmap('Blues')
 
-    for variable in df.num_cols.columns:
-        sns.histplot(plot_data[variable], color="darkblue", ax=ax[position], bins=15)
-        # variable_value = queried_case[variable].max()
-        # patches = ax[position].patches
-        # bin_width = patches[0].get_width()
-        # bin_number = round(variable_value / bin_width)
-        # patches[bin_number].set_facecolor('blue')
-        # ax[position].axvline(x=bin_width*bin_number, color=cmap(1), ymax=0)
-        # trans = ax[position].get_xaxis_transform()
-        # text = "\u2193"  + variable_value.astype(str)
-        # ax[position].legend(labels=['Sample','Population'])
-        # ax[position].set_ylabel('Count')
-        # ax[position].xaxis.labelpad = 20
-        # ax[position].yaxis.labelpad = 20
-        # heights = [h.get_height() for h in patches]
-        # if variable == 'OfferedAmount':
-        #     text_y = (patches[bin_number].get_height()/max(heights))+0.05
-        #     text_x = (bin_width*bin_number)+(bin_width*1.5)
-        # else:
-        #     text_y = (patches[bin_number].get_height()/max(heights))+0.05
-        #     text_x = (bin_width*bin_number)+bin_width/2
-        # plt.text(text_x, text_y, text, transform=trans)
+    # Loop over every variable we want to visualize
+    for variable in df.num_cols.drop(['activity_count'], axis=1).columns:
+        sns.histplot(plot_data[variable], color="moccasin", ax=ax[position], bins=15)
+
+        # Get variable value
+        variable_value = queried_case[variable].max()
+
+        # Get bar information and highlight bar in which the variable value is found
+        patches = ax[position].patches
+        bin_width = patches[0].get_width()
+        bin_number = round(variable_value / bin_width)
+        patches[bin_number].set_facecolor('royalblue')
+        ax[position].axvline(x=bin_width*bin_number, ymax=0)
+
+        # Adjust arrow in plot annotation to fit variable
+        if (plot_data[variable].value_counts().max()/patches[bin_number].get_height() <= 1) or (bin_number == 0):
+            text = "\u2190 " + variable_value.astype(str)
+        else:
+            text = "\u2193" + variable_value.astype(str)
+
+        # Create placement of annotation in plot to fit variable
+        heights = [h.get_height() for h in patches]
+        if (plot_data[variable].value_counts().max()/patches[bin_number].get_height() <= 1) or (bin_number == 0): 
+            bin_number += 1
+            variable_value += bin_width
+        if variable == 'OfferedAmount':
+            text_y = (patches[bin_number].get_height()/max(heights))+0.05
+            text_x = (bin_width*bin_number)+(bin_width*1.5)              
+        else:
+            text_y = (patches[bin_number].get_height()/max(heights))+0.05
+            text_x = (bin_width*bin_number)+bin_width/2
+        plt.text(text_x, text_y, text, transform=ax[position].get_xaxis_transform())
+
+        # Adjust labels
+        ax[position].legend(labels=['Sample','Population'])
+        ax[position].set_ylabel('Count')
+        ax[position].xaxis.labelpad = 20
+        ax[position].yaxis.labelpad = 20
+
         position += 1
-    
+
     plt.savefig('testplot_.png')
 
     return plt.show()
-# %%

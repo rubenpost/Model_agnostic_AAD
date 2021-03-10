@@ -48,14 +48,3 @@ encoded_numeric = encoder.numeric_encoder(preprocessed.data, numeric_encoding)
 aad = detect_anomalies(np.asarray(encoded_numeric), preprocessed)
 
 # %%
-preprocessed.num_cols.isna().sum()
-
-# %
-gp = preprocessed.data.groupby('case:concept:name')
-queried_case = gp.get_group(preprocessed.data['case:concept:name'].unique()[17370])
-
-# %%
-queried_case
-# %%
-encoded_numeric.isna().sum()
-# %%

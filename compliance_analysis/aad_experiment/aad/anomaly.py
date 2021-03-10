@@ -148,7 +148,7 @@ def show_anomaly(queried, df):
     img = mpimg.imread(file_name.name)
     ax[position].axis('off')
     ax[position].imshow(img)
-    ax[position].set_title("Process model of case %s" (queried.astype(str)))
+    ax[position].set_title(f"Process model of case {queried}")
     position += 1
 
     # Create input for research/activity table
@@ -178,7 +178,6 @@ def show_anomaly(queried, df):
         for j in range(len(resources)):
             text = ax[position].text(j, i, table_input[i, j],
                         ha="center", va="center", color="w")
-
     position += 1
 
     # Create dataframe used to make base plots

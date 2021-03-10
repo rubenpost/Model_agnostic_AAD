@@ -127,17 +127,17 @@ def show_anomaly(queried, df):
 
     # Create event log from queried case
     log = pm.convert_to_event_log(queried_case)
-    
-    # Set seaborn style, subplot size, and initiate position number
-    sns.set(style="white", color_codes=True, font_scale = 1.25)
-    sns.despine(left=True)
-    fig, ax = plt.subplots(len(df.num_cols.columns)+1, figsize=(10, (len(df.num_cols.columns)+2)*10))
-    position = 0
 
     # Remove boolean columns from dataframe as visualization would not provide benefit
     for column in df.num_cols.columns:
         if df.num_cols[column].nunique() <= 2:
             df.num_cols.drop(column, axis=1, inplace=True)
+    
+    # Set seaborn style, subplot size, and initiate position number
+    sns.set(style="white", color_codes=True, font_scale = 1.25)
+    sns.despine(left=True)
+    fig, ax = plt.subplots(len(df.num_cols.columns)+1, figsize=(10, (len(df.num_cols.columns)+1)*10))
+    position = 0
 
     # Visualize process trace
     dfg = dfg_discovery.apply(log, variant=dfg_discovery.Variants.PERFORMANCE)

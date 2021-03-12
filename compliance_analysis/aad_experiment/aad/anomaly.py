@@ -11,6 +11,8 @@ import numpy as np
 import seaborn as sns
 import pandas as pd
 import matplotlib.pyplot as plt
+import matplotlib.colors
+import matplotlib.patches as mpatches
 import matplotlib.image as mpimg
 from pm4py.visualization.common import save
 from aad_experiment.common.utils import configure_logger
@@ -117,7 +119,7 @@ def detect_anomalies(x, df):
     end = time.time()
     print("You have identified %s anomalies. In total, AAD took" % found, end - start, "seconds.")
 
-    return ordered_idxs, model, x_transformed, queried
+    return ordered_idxs, model, x_transformed, queried, y_labeled
 
 def show_anomaly(queried, df):
 
@@ -136,7 +138,7 @@ def show_anomaly(queried, df):
     # Set seaborn style, subplot size, and initiate position number
     sns.set(style="white", color_codes=True, font_scale = 1.25)
     sns.despine(left=True)
-    fig, ax = plt.subplots(len(df.num_cols.columns)+1, figsize=(10, (len(df.num_cols.columns)+1)*10))
+    fig, ax = plt.subplots(len(df.num_cols.columns)+2, figsize=(10, (len(df.num_cols.columns)+1)*10))
     position = 0
 
     # Visualize process trace
@@ -164,7 +166,7 @@ def show_anomaly(queried, df):
 
     # Create custom table
     activities, resources = sorted(list(queried_case['concept:name'].unique())), list(queried_case['org:resource'].unique())
-    ax[position].imshow(table_input, cmap='Blues')
+    ax[position].imshow(table_input, cmap='Reds')
     ax[position].set_xticks(np.arange(len(resources)))
     ax[position].set_yticks(np.arange(len(activities)))
     ax[position].set_xticklabels(resources)
@@ -176,8 +178,48 @@ def show_anomaly(queried, df):
     # Loop over data dimensions and create text annotations.
     for i in range(len(activities)):
         for j in range(len(resources)):
-            text = ax[position].text(j, i, table_input[i, j],
-                        ha="center", va="center", color="w")
+            if table_input[i, j] == 0:
+                pass
+            else:
+                text = ax[position].text(j, i, table_input[i, j],
+                            ha="center", va="center", color="w")
+    position += 1
+
+    # Create input for ancedent/consequence table
+    queried_case.reset_index(drop=True, inplace=True)
+    empty_list = pd.DataFrame(columns=['activity', 'consequence'])
+    for activity in queried_case['concept:name'].unique():
+        occurences = np.where(queried_case['concept:name'] == activity)[0]
+        for consequence_index in occurences:
+            if consequence_index != len(queried_case['concept:name'])-1:
+                consequence = queried_case['concept:name'].loc[consequence_index+1]
+                empty_list = empty_list.append({'activity': activity, 'consequence': consequence}, ignore_index=True)
+            else:
+                pass
+    empty_list = empty_list.groupby(['activity', 'consequence']).size()
+    empty_list = pd.DataFrame(empty_list).reset_index()
+    empty_list = empty_list.pivot_table(index='activity', columns='consequence', values=0, fill_value=0).reset_index()
+    empty_list.drop(['activity'], axis=1, inplace=True)
+
+    # Create custom table
+    activities = sorted(list(queried_case['concept:name'].unique()))
+    ax[position].imshow(np.asarray(empty_list), cmap='Reds')
+    ax[position].set_xticks(np.arange(len(activities)))
+    ax[position].set_yticks(np.arange(len(activities)))
+    ax[position].set_xticklabels(activities)
+    ax[position].set_yticklabels(activities)
+    ax[position].set_title("Activities performed per resource", y=1.02)
+    plt.setp(ax[position].get_xticklabels(), rotation=45, ha="right",
+            rotation_mode="anchor")
+    np.asarray(empty_list)        
+    # Loop over data dimensions and create text annotations.
+    for i in range(len(empty_list)):
+        for j in range(len(empty_list.columns)):
+            if np.asarray(empty_list)[i,j] == 0:
+                pass
+            else:
+                text = ax[position].text(j, i, np.asarray(empty_list)[i,j],
+                            ha="center", va="center", color="w")
     position += 1
 
     # Create dataframe used to make base plots
@@ -186,7 +228,9 @@ def show_anomaly(queried, df):
 
     # Loop over every variable we want to visualize
     for variable in df.num_cols.drop(['activity_count'], axis=1).columns:
-        sns.histplot(plot_data[variable], color="moccasin", ax=ax[position], bins=15)
+
+        # Plot the variable
+        sns.histplot(plot_data[variable], color="mistyrose", ax=ax[position], bins=15)
 
         # Get variable value
         variable_value = queried_case[variable].max()
@@ -195,8 +239,8 @@ def show_anomaly(queried, df):
         patches = ax[position].patches
         bin_width = patches[0].get_width()
         bin_number = round(variable_value / bin_width)
-        patches[bin_number].set_facecolor('royalblue')
-        ax[position].axvline(x=bin_width*bin_number, ymax=0)
+        patches[bin_number].set_facecolor('r')
+        ax[position].axvline(x=bin_width*bin_number, ymax=0, color='r')
 
         # Adjust arrow in plot annotation to fit variable
         if (plot_data[variable].value_counts().max()/patches[bin_number].get_height() <= 1) or (bin_number == 0):
@@ -218,7 +262,12 @@ def show_anomaly(queried, df):
         plt.text(text_x, text_y, text, transform=ax[position].get_xaxis_transform())
 
         # Adjust labels
-        ax[position].legend(labels=['Sample','Population'])
+        handle1 = mpatches.Patch(color='r', label='Sample')
+        handle2 = mpatches.Patch(color='mistyrose', label='Population')
+        ax[position].legend(handles=[handle1, handle2])
+
+        # Create the figure
+
         ax[position].set_ylabel('Count')
         ax[position].xaxis.labelpad = 20
         ax[position].yaxis.labelpad = 20

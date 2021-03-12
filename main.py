@@ -1,13 +1,10 @@
 # %%
-import time
-import pandas as pd
 import numpy as np
-import importlib as imp
 from tqdm.auto import tqdm
 from preprocessing.encoding import encoder
 from preprocessing.preprocessing import preprocessor
 from preprocessing.preprocessing import datamanager
-from compliance_analysis.compliance_rules.compliance_checker import enrich
+from preprocessing.enrich import enrich
 from compliance_analysis.aad_experiment.aad.anomaly import detect_anomalies
 tqdm.pandas()
 data_source = '/workspaces/thesis/2017_with_features.gzip'
@@ -22,6 +19,7 @@ preprocessed = preprocessor.column_rename(
 # Enrich data
 # preprocessed.data = preprocessed.data.groupby(['case:concept:name']).progress_apply(enrich.feature_engineering)
 # preprocessed.data = preprocessed.data.groupby(['case:concept:name']).progress_apply(enrich.bounded_existence, activity = 'O_Created')
+
 
 # %%
 # Encode data

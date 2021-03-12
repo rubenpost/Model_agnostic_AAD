@@ -7,7 +7,7 @@ from preprocessing.preprocessing import datamanager
 from preprocessing.enrich import enrich
 from compliance_analysis.aad_experiment.aad.anomaly import detect_anomalies
 tqdm.pandas()
-data_source = '/workspaces/thesis/2017_with_features.gzip'
+data_source = '/workspaces/thesis/data/enriched/2017_with_features.gzip'
 # %%
 # Preprocess data
 preprocessed = preprocessor.column_rename(

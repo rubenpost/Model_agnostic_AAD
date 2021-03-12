@@ -46,3 +46,6 @@ encoded_numeric = encoder.numeric_encoder(preprocessed.data, numeric_encoding)
 aad = detect_anomalies(np.asarray(encoded_numeric), preprocessed)
 
 # %%
+import pandas as pd
+d = pd.read_clipboard()
+# %%

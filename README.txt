@@ -1,12 +1,11 @@
-Active Anomaly Detection (AAD) with process mining enables end-users to both gain insight in the process of the client and train the algorith at the same time.
 DESCRIPTION
---------------------
+Active Anomaly Detection (AAD) enables domain experts to identify outliers in process data and adjust to algorithm to cope with known exceptions.
 
 INSTALL
---------------------
+See requirements.txt for used packages and Dockerfile for specifications of the virtual environment.
 
 SETUP
---------------------
+TBD
 
 GITHUB
 

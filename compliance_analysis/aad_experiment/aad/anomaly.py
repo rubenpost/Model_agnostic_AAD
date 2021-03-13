@@ -138,7 +138,7 @@ def show_anomaly(queried, df):
     # Set seaborn style, subplot size, and initiate position number
     sns.set(style="white", color_codes=True, font_scale = 1.25)
     sns.despine(left=True)
-    fig, ax = plt.subplots(len(df.num_cols.columns)+2, figsize=(10, (len(df.num_cols.columns)+1)*10))
+    fig, ax = plt.subplots(len(df.num_cols.columns)+2, figsize=(10, (len(df.num_cols.columns)+1)*15))
     position = 0
 
     # Visualize process trace
@@ -208,7 +208,7 @@ def show_anomaly(queried, df):
     ax[position].set_yticks(np.arange(len(activities)))
     ax[position].set_xticklabels(activities)
     ax[position].set_yticklabels(activities)
-    ax[position].set_title("Activities performed per resource", y=1.02)
+    ax[position].set_title("Ancedent (Y-xis) and consequence activities (X-axis)", y=1.02)
     plt.setp(ax[position].get_xticklabels(), rotation=45, ha="right",
             rotation_mode="anchor")
     np.asarray(empty_list)        

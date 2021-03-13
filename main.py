@@ -46,3 +46,29 @@ encoded_numeric = encoder.numeric_encoder(preprocessed.data, numeric_encoding)
 aad = detect_anomalies(np.asarray(encoded_numeric), preprocessed)
 
 # %%
+import pandas as pd
+df = preprocessed
+gp = df.data.groupby('case:concept:name')
+case_activities = gp.get_group(df.data['case:concept:name'].unique()[0])
+case_activities = pd.DataFrame(case_activities['concept:name'].value_counts()).reset_index()
+case_activities = case_activities.pivot_table(columns='index', values='concept:name')
+# %%
+case_activities
+# %%
+preprocessed.data = preprocessed.data[:100:]
+# %%
+import pandas as pd
+def object_encoder(self, preprocessed):
+    for columns in self.drop(['EventID'], axis=1).columns:
+        encoded_objects = self[columns].value_counts().reset_index()
+        encoded_objects = encoded_objects.pivot_table(columns='index', values=columns)
+    for column in preprocessed.object_cols.columns:
+        encoded_objects[column] = preprocessed.data[column]
+    return encoded_objects
+
+encoded_objects = preprocessed.object_cols.head(1000).groupby(['case:concept:name']).progress_apply(object_encoder, preprocessed = preprocessed)
+# %%
+encoded_objects
+# %%
+preprocessed.object_cols.columns
+# %%

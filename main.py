@@ -1,13 +1,16 @@
 # %%
+from os import F_TEST
 import numpy as np
+import pandas as pd
 from tqdm.auto import tqdm
 from preprocessing.encoding import encoder
 from preprocessing.preprocessing import preprocessor
 from preprocessing.preprocessing import datamanager
 from preprocessing.enrich import enrich
 from compliance_analysis.aad_experiment.aad.anomaly import detect_anomalies
+from compliance_analysis.aad_experiment.aad.anomaly import show_anomaly
 tqdm.pandas()
-data_source = '/workspaces/thesis/data/enriched/2017_with_features.gzip'
+data_source = '/workspaces/thesis/data/raw/BPI_Challenge_2012.gzip'
 # %%
 # Preprocess data
 preprocessed = preprocessor.column_rename(
@@ -17,58 +20,50 @@ preprocessed = preprocessor.column_rename(
 
 # %%
 # Enrich data
-# preprocessed.data = preprocessed.data.groupby(['case:concept:name']).progress_apply(enrich.feature_engineering)
-# preprocessed.data = preprocessed.data.groupby(['case:concept:name']).progress_apply(enrich.bounded_existence, activity = 'O_Created')
+preprocessed.data = preprocessed.data.groupby(['case:concept:name']).progress_apply(enrich.feature_engineering)
+preprocessed.data = preprocessed.data.groupby(['case:concept:name']).progress_apply(enrich.bounded_existence, activity = 'A_SUBMITTED')
+
+preprocessed = datamanager(data = preprocessed.data)
 
 
 # %%
 # Encode data
 numeric_encoding = {
-    'RequestedAmount':'max',
-    'FirstWithdrawalAmount':'sum',
-    'NumberOfTerms':'max',
-    'Accepted':'sum',
-    'MonthlyCost':'max',
-    'Selected':'sum',
-    'CreditScore':'max',
-    'OfferedAmount':'max',
-    'case_length':'last',
-    'activity_count':'last',
-    'bounded_existence_O_Created':'last'}
+    'AMOUNT_REQ':'max'}#,
+    # 'FirstWithdrawalAmount':'sum',
+    # 'NumberOfTerms':'max',
+    # 'Accepted':'sum',
+    # 'MonthlyCost':'max',
+    # 'Selected':'sum',
+    # 'CreditScore':'max',
+    # 'OfferedAmount':'max',
+    # 'case_length':'last',
+    # 'activity_count':'last',
+    # 'bounded_existence_O_Created':'last'}
 
-# encoded_cat = encoder.categorical_encoder(preprocessed)
-
-encoded_numeric = encoder.numeric_encoder(preprocessed.data, numeric_encoding)
-# encoded_data = pd.concat([encoded_numeric, encoded_cat], axis=1).fillna('0').drop(['case:concept:name'], axis=1)
+encoded_numeric = encoder.numeric_encoder(preprocessed, numeric_encoding)
+encoded_categorical = encoder.categorical_encoder(preprocessed)
+encoded_data = pd.concat([encoded_numeric, encoded_categorical.reset_index()], axis=1).fillna(0)
+# encoded_data = pd.read_csv('/workspaces/thesis/data/encoded/encoded_data_2.csv')
 
 # %%
 # Detect anomalies 
-aad = detect_anomalies(np.asarray(encoded_numeric), preprocessed)
+aad = detect_anomalies(np.asarray(encoded_data), preprocessed)
 
 # %%
-import pandas as pd
-df = preprocessed
-gp = df.data.groupby('case:concept:name')
-case_activities = gp.get_group(df.data['case:concept:name'].unique()[0])
-case_activities = pd.DataFrame(case_activities['concept:name'].value_counts()).reset_index()
-case_activities = case_activities.pivot_table(columns='index', values='concept:name')
-# %%
-case_activities
-# %%
-preprocessed.data = preprocessed.data[:100:]
-# %%
-import pandas as pd
-def object_encoder(self, preprocessed):
-    for columns in self.drop(['EventID'], axis=1).columns:
-        encoded_objects = self[columns].value_counts().reset_index()
-        encoded_objects = encoded_objects.pivot_table(columns='index', values=columns)
-    for column in preprocessed.object_cols.columns:
-        encoded_objects[column] = preprocessed.data[column]
-    return encoded_objects
+df2 = encoded_data
+from sklearn.ensemble import IsolationForest
+model=IsolationForest(random_state=0)
+model.fit(df2)
+df2["scores"] = model.decision_function(df2)
+df2["@@index"] = df2.index
+df2 = df2[["scores", "@@index"]]
+df2 = df2.sort_values("scores")
+print(df2)
 
-encoded_objects = preprocessed.object_cols.head(1000).groupby(['case:concept:name']).progress_apply(object_encoder, preprocessed = preprocessed)
-# %%
-encoded_objects
-# %%
-preprocessed.object_cols.columns
-# %%
+process = 1
+for i in df2['@@index'].tail(100).iloc[19::]:
+    show_anomaly(i, preprocessed)
+    print('Processed {} of 100..'.format(process))
+    process += 1
+print('Done')

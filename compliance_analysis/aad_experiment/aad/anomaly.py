@@ -31,7 +31,7 @@ from pm4py.visualization.dfg import visualizer as dfg_visualization
 # %%
 logger = logging.getLogger(__name__)
 
-def get_debug_args(budget=4, detector_type=AAD_IFOREST):
+def get_debug_args(budget=1, detector_type=AAD_IFOREST):
     # return the AAD parameters what will be parsed later
     return ["--resultsdir=./temp", "--randseed=42",
             "--reruns=1",
@@ -72,10 +72,10 @@ def detect_anomalies(x, df):
     logger.debug(opts.str_opts())
     np.random.seed(opts.randseed)
 
-    rng = np.random.RandomState(opts.randseed)
+    # rng = np.random.RandomState(opts.randseed)
 
     # prepare the AAD model
-    model = get_aad_model(x, opts, rng)
+    model = get_aad_model(x, opts, 0)
     model.fit(x)
     model.init_weights(init_type=opts.init)
 
@@ -91,6 +91,7 @@ def detect_anomalies(x, df):
     hn = []  # labeled nominal instances
     while len(queried) < opts.budget:
         ordered_idxs, anom_score = model.order_by_score(x_transformed)
+        original_scores = ordered_idxs
         qx = qstate.get_next_query(ordered_indexes=ordered_idxs,
                                 queried_items=queried)
         queried.extend(qx)
@@ -119,7 +120,7 @@ def detect_anomalies(x, df):
     end = time.time()
     print("You have identified %s anomalies. In total, AAD took" % found, end - start, "seconds.")
 
-    return ordered_idxs, model, x_transformed, queried, y_labeled
+    return ordered_idxs, model, x_transformed, queried, y_labeled, original_scores
 
 def show_anomaly(queried, df):
 
@@ -208,7 +209,7 @@ def show_anomaly(queried, df):
     ax[position].set_yticks(np.arange(len(activities)))
     ax[position].set_xticklabels(activities)
     ax[position].set_yticklabels(activities)
-    ax[position].set_title("Ancedent (Y-xis) and consequence activities (X-axis)", y=1.02)
+    ax[position].set_title("Antecedent (Y-xis) and consequence activities (X-axis)", y=1.02)
     plt.setp(ax[position].get_xticklabels(), rotation=45, ha="right",
             rotation_mode="anchor")
     np.asarray(empty_list)        
@@ -273,7 +274,6 @@ def show_anomaly(queried, df):
         ax[position].yaxis.labelpad = 20
 
         position += 1
+        plt.savefig('/workspaces/thesis/vis/fourth/head_{}.jpg'.format(queried))
 
-    plt.savefig('testplot_.png')
-
-    return plt.show()
+    #return plt.show()

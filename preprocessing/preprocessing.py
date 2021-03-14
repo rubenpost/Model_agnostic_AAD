@@ -7,6 +7,7 @@ class preprocessor:
 
     def column_rename(data_path, case_id_col, activity_col, timestamp_col, resource_col):
         start = time.time()
+        print('Preprocessing the data..')
 
         # load data
         df = pd.read_parquet(data_path)

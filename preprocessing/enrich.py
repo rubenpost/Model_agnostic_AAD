@@ -29,7 +29,8 @@ class enrich:
     
     def feature_engineering(self):
         case_length = self['time:timestamp'].max() - self['time:timestamp'].min()
-        self['case_length'] = ((case_length.total_seconds()/60)/60)/24
+        self['case_length'] = ((case_length.total_seconds()/60)/60)//24
+        self['case_length'] = round(self['case_length'])
         self['activity_count'] = self['concept:name'].nunique()
         return self
 # %%

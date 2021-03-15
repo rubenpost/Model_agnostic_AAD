@@ -162,6 +162,7 @@ def show_anomaly(queried, df):
     for user in user_columns.columns:
         user_data = sample.groupby(['concept:name'], as_index=False).agg({user:'sum'})
         table_input = pd.concat([table_input, user_data.iloc[:,1:]], axis=1)
+
     table_input.sort_values(by='concept:name', inplace=True)
     table_input = np.asarray(table_input.iloc[:,1:])
 
@@ -175,7 +176,7 @@ def show_anomaly(queried, df):
     ax[position].set_title("Activities performed per resource", y=1.02)
     plt.setp(ax[position].get_xticklabels(), rotation=45, ha="right",
             rotation_mode="anchor")
-            
+
     # Loop over data dimensions and create text annotations.
     for i in range(len(activities)):
         for j in range(len(resources)):
@@ -197,13 +198,14 @@ def show_anomaly(queried, df):
                 empty_list = empty_list.append({'activity': activity, 'consequence': consequence}, ignore_index=True)
             else:
                 pass
+    activity_list = empty_list
     empty_list = empty_list.groupby(['activity', 'consequence']).size()
     empty_list = pd.DataFrame(empty_list).reset_index()
     empty_list = empty_list.pivot_table(index='activity', columns='consequence', values=0, fill_value=0).reset_index()
     empty_list.drop(['activity'], axis=1, inplace=True)
 
     # Create custom table
-    activities = sorted(list(queried_case['concept:name'].unique()))
+    activities = sorted(list(activity_list['activity'].unique()))
     ax[position].imshow(np.asarray(empty_list), cmap='Reds')
     ax[position].set_xticks(np.arange(len(activities)))
     ax[position].set_yticks(np.arange(len(activities)))
@@ -220,7 +222,7 @@ def show_anomaly(queried, df):
                 pass
             else:
                 text = ax[position].text(j, i, np.asarray(empty_list)[i,j],
-                            ha="center", va="center", color="w")
+                        ha="center", va="center", color="w")
     position += 1
 
     # Create dataframe used to make base plots
@@ -274,6 +276,6 @@ def show_anomaly(queried, df):
         ax[position].yaxis.labelpad = 20
 
         position += 1
-        plt.savefig('/workspaces/thesis/vis/fourth/head_{}.jpg'.format(queried))
+        plt.savefig('/workspaces/thesis/vis/head_2012/head_{}.jpg'.format(queried))
 
-    #return plt.show()
+    # return plt.show()

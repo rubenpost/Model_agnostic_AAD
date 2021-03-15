@@ -155,16 +155,10 @@ def show_anomaly(queried, df):
     position += 1
 
     # Create input for research/activity table
-    sample = pd.DataFrame(queried_case[['concept:name','org:resource']].value_counts().reset_index())
-    sample = pd.DataFrame(pd.concat([sample['concept:name'], pd.get_dummies(sample['org:resource'])], axis=1).value_counts()).reset_index()
-    user_columns = sample.iloc[:,1:-1]
-    table_input = sample['concept:name'].drop_duplicates().reset_index(drop=True)
-    for user in user_columns.columns:
-        user_data = sample.groupby(['concept:name'], as_index=False).agg({user:'sum'})
-        table_input = pd.concat([table_input, user_data.iloc[:,1:]], axis=1)
-
-    table_input.sort_values(by='concept:name', inplace=True)
-    table_input = np.asarray(table_input.iloc[:,1:])
+    table_input = pd.DataFrame(queried_case[['concept:name','org:resource']].value_counts().reset_index())
+    table_input = table_input.pivot_table(index='concept:name', columns='org:resource', values=0, fill_value=0).reset_index()
+    table_input.drop(['concept:name'], axis=1, inplace=True)
+    table_input = np.asarray(table_input)
 
     # Create custom table
     activities, resources = sorted(list(queried_case['concept:name'].unique())), list(queried_case['org:resource'].unique())
@@ -205,12 +199,14 @@ def show_anomaly(queried, df):
     empty_list.drop(['activity'], axis=1, inplace=True)
 
     # Create custom table
-    activities = sorted(list(activity_list['activity'].unique()))
+    # activities = sorted(list(activity_list['activity'].unique()))
+    activities_y = sorted(list(activity_list['activity'].unique()))
+    activities_x = sorted(list(activity_list['consequence'].unique()))
     ax[position].imshow(np.asarray(empty_list), cmap='Reds')
-    ax[position].set_xticks(np.arange(len(activities)))
-    ax[position].set_yticks(np.arange(len(activities)))
-    ax[position].set_xticklabels(activities)
-    ax[position].set_yticklabels(activities)
+    ax[position].set_xticks(np.arange(len(activities_x)))
+    ax[position].set_yticks(np.arange(len(activities_y)))
+    ax[position].set_xticklabels(activities_x)
+    ax[position].set_yticklabels(activities_y)
     ax[position].set_title("Antecedent (Y-xis) and consequence activities (X-axis)", y=1.02)
     plt.setp(ax[position].get_xticklabels(), rotation=45, ha="right",
             rotation_mode="anchor")

@@ -9,7 +9,7 @@ from preprocessing.enrich import enrich
 from compliance_analysis.aad_experiment.aad.anomaly import detect_anomalies
 from compliance_analysis.aad_experiment.aad.anomaly import show_anomaly
 tqdm.pandas()
-data_source = '/workspaces/thesis/2012_features.gzip'
+data_source = '/workspaces/thesis/data/enriched/2012_features.gzip'
 # %%
 # Preprocess data
 preprocessed = preprocessor.column_rename(
@@ -43,7 +43,7 @@ numeric_encoding = {
 # encoded_numeric = encoder.numeric_encoder(preprocessed, numeric_encoding)
 # encoded_categorical = encoder.categorical_encoder(preprocessed)
 # encoded_data = pd.concat([encoded_numeric, encoded_categorical.reset_index()], axis=1).fillna(0)
-encoded_data = pd.read_csv('/workspaces/thesis/encoded_2012.csv')
+encoded_data = pd.read_csv('/workspaces/thesis/data/encoded/encoded_2012.csv')
 # preprocessed.num_cols.drop(['Unnamed: 0'], axis=1, inplace=True)
 encoded_data.drop(['Unnamed: 0'], axis=1, inplace=True)
 # %%
@@ -62,10 +62,8 @@ df2 = df2.sort_values("scores")
 print(df2)
 
 process = 1
-for i in df2['@@index'].head(100):
+for i in df2['@@index'].head(1):
     show_anomaly(i, preprocessed)
     print('Processed {} of 100..'.format(process))
     process += 1
 print('Done')
-
-# %%

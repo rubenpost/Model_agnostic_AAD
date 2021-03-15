@@ -125,6 +125,12 @@ def detect_anomalies(x, df):
 def show_anomaly(queried, df):
 
     # Grap queried case from population
+    if 'case_length' in df.data.columns:
+        df.data.rename(columns={'case_length':'case_length (days)'}, inplace=True)
+
+    if 'case_length' in df.num_cols.columns:
+        df.num_cols.rename(columns={'case_length':'case_length (days)'}, inplace=True)
+
     gp = df.data.groupby('case:concept:name')
     queried_case = gp.get_group(df.data['case:concept:name'].unique()[queried])
 
@@ -137,9 +143,9 @@ def show_anomaly(queried, df):
             df.num_cols.drop(column, axis=1, inplace=True)
     
     # Set seaborn style, subplot size, and initiate position number
-    sns.set(style="white", color_codes=True, font_scale = 1.25)
+    sns.set(style="white", color_codes=True, font_scale = 1)
     sns.despine(left=True)
-    fig, ax = plt.subplots(len(df.num_cols.columns)+2, figsize=(10, (len(df.num_cols.columns)+1)*15))
+    fig, ax = plt.subplots(len(df.num_cols.columns)+2, figsize=(10, (len(df.num_cols.columns)+2)*8))
     position = 0
 
     # Visualize process trace
@@ -152,33 +158,6 @@ def show_anomaly(queried, df):
     ax[position].axis('off')
     ax[position].imshow(img)
     ax[position].set_title(f"Process model of case {queried}")
-    position += 1
-
-    # Create input for research/activity table
-    table_input = pd.DataFrame(queried_case[['concept:name','org:resource']].value_counts().reset_index())
-    table_input = table_input.pivot_table(index='concept:name', columns='org:resource', values=0, fill_value=0).reset_index()
-    table_input.drop(['concept:name'], axis=1, inplace=True)
-    table_input = np.asarray(table_input)
-
-    # Create custom table
-    activities, resources = sorted(list(queried_case['concept:name'].unique())), list(queried_case['org:resource'].unique())
-    ax[position].imshow(table_input, cmap='Reds')
-    ax[position].set_xticks(np.arange(len(resources)))
-    ax[position].set_yticks(np.arange(len(activities)))
-    ax[position].set_xticklabels(resources)
-    ax[position].set_yticklabels(activities)
-    ax[position].set_title("Activities performed per resource", y=1.02)
-    plt.setp(ax[position].get_xticklabels(), rotation=45, ha="right",
-            rotation_mode="anchor")
-
-    # Loop over data dimensions and create text annotations.
-    for i in range(len(activities)):
-        for j in range(len(resources)):
-            if table_input[i, j] == 0:
-                pass
-            else:
-                text = ax[position].text(j, i, table_input[i, j],
-                            ha="center", va="center", color="w")
     position += 1
 
     # Create input for ancedent/consequence table
@@ -220,6 +199,35 @@ def show_anomaly(queried, df):
                 text = ax[position].text(j, i, np.asarray(empty_list)[i,j],
                         ha="center", va="center", color="w")
     position += 1
+
+    # Create input for research/activity table
+    table_input = pd.DataFrame(queried_case[['concept:name','org:resource']].value_counts().reset_index())
+    table_input = table_input.pivot_table(index='concept:name', columns='org:resource', values=0, fill_value=0).reset_index()
+    table_input.drop(['concept:name'], axis=1, inplace=True)
+    table_input = np.asarray(table_input)
+
+    # Create custom table
+    activities, resources = sorted(list(queried_case['concept:name'].unique())), list(queried_case['org:resource'].unique())
+    ax[position].imshow(table_input, cmap='Reds')
+    ax[position].set_xticks(np.arange(len(resources)))
+    ax[position].set_yticks(np.arange(len(activities)))
+    ax[position].set_xticklabels(resources)
+    ax[position].set_yticklabels(activities)
+    ax[position].set_title("Activities performed per resource", y=1.02)
+    plt.setp(ax[position].get_xticklabels(), rotation=45, ha="right",
+            rotation_mode="anchor")
+
+    # Loop over data dimensions and create text annotations.
+    for i in range(len(activities)):
+        for j in range(len(resources)):
+            if table_input[i, j] == 0:
+                pass
+            else:
+                text = ax[position].text(j, i, table_input[i, j],
+                            ha="center", va="center", color="w")
+    position += 1
+
+    plt.tight_layout()
 
     # Create dataframe used to make base plots
     data = pd.concat([df.num_cols, df.case_id_col], axis=1)
@@ -272,6 +280,7 @@ def show_anomaly(queried, df):
         ax[position].yaxis.labelpad = 20
 
         position += 1
-        plt.savefig('/workspaces/thesis/vis/head_2012/head_{}.jpg'.format(queried))
+        plt.savefig('/workspaces/thesis/vis/tail_2012/head_{}.jpg'.format(queried), bbox_inches='tight')
+
 
     # return plt.show()

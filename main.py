@@ -62,8 +62,12 @@ df2 = df2.sort_values("scores")
 print(df2)
 
 process = 1
-for i in df2['@@index'].head(1):
+for i in df2['@@index'][7500:7600]:
     show_anomaly(i, preprocessed)
     print('Processed {} of 100..'.format(process))
     process += 1
 print('Done')
+
+# %%
+preprocessed.data
+# %%

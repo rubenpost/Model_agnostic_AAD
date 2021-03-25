@@ -9,7 +9,7 @@ from preprocessing.enrich import enrich
 from compliance_analysis.aad_experiment.aad.anomaly import detect_anomalies
 from compliance_analysis.aad_experiment.aad.anomaly import show_anomaly
 tqdm.pandas()
-data_source = '/workspaces/thesis/data/enriched/2012_features.gzip'
+data_source = '/workspaces/thesis/data/preprocessed/2012_A.gzip'
 # %%
 # Preprocess data
 preprocessed = preprocessor.column_rename(
@@ -70,4 +70,17 @@ print('Done')
 
 # %%
 preprocessed.data
+# %%
+import pandas as pd
+df = pd.read_parquet('/workspaces/thesis/data/raw/BPI_Challenge_2012.gzip')
+# %%
+df
+# %%
+df['org:resource'].unique(ascending=True)
+# %%
+df.describe(include='all')
+# %%
+encoded_data.shape
+# %%
+preprocessed.data['lifecycle:transition'].unique()
 # %%

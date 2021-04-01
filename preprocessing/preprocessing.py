@@ -21,10 +21,11 @@ class preprocessor:
         }, inplace = True)
 
         # retype
-        df['case:concept:name'] = df['case:concept:name'].astype('str')
-        df['concept:name'] = df['concept:name'].astype('str')
+        df['case:concept:name'] = df['case:concept:name'].astype(str)    
+        df['concept:name'] = df['concept:name'].astype(str)
+        df['time:timestamp'] = df['time:timestamp'].astype(str).str.slice(stop=19)
         df['time:timestamp'] = pd.to_datetime(df["time:timestamp"])
-        df['org:resource'] = df['org:resource'].astype('str')
+        df['org:resource'] = df['org:resource'].astype(str)
 
         # Add instance data
         df = datamanager(data = df)
@@ -73,8 +74,6 @@ class datamanager:
             else:
                 dynamic_num_cols.append(str(column))
                 dynamic_cols.append(str(column))
-        
-        # Remove boolean columns from numeric and append to categoric
 
         # base attributes based column types
         self.static_cat_cols = data[static_cat_cols]

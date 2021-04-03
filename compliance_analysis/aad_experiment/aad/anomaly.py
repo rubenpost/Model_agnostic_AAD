@@ -31,7 +31,7 @@ from pm4py.visualization.dfg import visualizer as dfg_visualization
 # %%
 logger = logging.getLogger(__name__)
 
-def get_debug_args(budget=4, detector_type=AAD_IFOREST):
+def get_debug_args(budget=1, detector_type=AAD_IFOREST):
     # return the AAD parameters what will be parsed later
     return ["--resultsdir=./temp", "--randseed=42",
             "--reruns=1",
@@ -72,10 +72,10 @@ def detect_anomalies(x, df):
     logger.debug(opts.str_opts())
     np.random.seed(opts.randseed)
 
-    rng = np.random.RandomState(opts.randseed)
+    # rng = np.random.RandomState(opts.randseed)
 
     # prepare the AAD model
-    model = get_aad_model(x, opts, rng)
+    model = get_aad_model(x, opts, 0)
     model.fit(x)
     model.init_weights(init_type=opts.init)
 
@@ -91,6 +91,7 @@ def detect_anomalies(x, df):
     hn = []  # labeled nominal instances
     while len(queried) < opts.budget:
         ordered_idxs, anom_score = model.order_by_score(x_transformed)
+        original_scores = ordered_idxs
         qx = qstate.get_next_query(ordered_indexes=ordered_idxs,
                                 queried_items=queried)
         queried.extend(qx)
@@ -119,9 +120,9 @@ def detect_anomalies(x, df):
     end = time.time()
     print("You have identified %s anomalies. In total, AAD took" % found, end - start, "seconds.")
 
-    return ordered_idxs, model, x_transformed, queried, y_labeled
+    return ordered_idxs, model, x_transformed, queried, y_labeled, original_scores
 
-def show_anomaly(queried, df):
+def show_anomaly(queried, df, index=None):
 
     # Grap queried case from population
     gp = df.data.groupby('case:concept:name')
@@ -136,9 +137,9 @@ def show_anomaly(queried, df):
             df.num_cols.drop(column, axis=1, inplace=True)
     
     # Set seaborn style, subplot size, and initiate position number
-    sns.set(style="white", color_codes=True, font_scale = 1.25)
+    sns.set(style="white", color_codes=True, font_scale = 1)
     sns.despine(left=True)
-    fig, ax = plt.subplots(len(df.num_cols.columns)+2, figsize=(10, (len(df.num_cols.columns)+1)*10))
+    fig, ax = plt.subplots(len(df.num_cols.columns)+3, figsize=(10, (len(df.num_cols.columns)+3)*10))
     position = 0
 
     # Visualize process trace
@@ -153,36 +154,36 @@ def show_anomaly(queried, df):
     ax[position].set_title(f"Process model of case {queried}")
     position += 1
 
-    # Create input for research/activity table
-    sample = pd.DataFrame(queried_case[['concept:name','org:resource']].value_counts().reset_index())
-    sample = pd.DataFrame(pd.concat([sample['concept:name'], pd.get_dummies(sample['org:resource'])], axis=1).value_counts()).reset_index()
-    user_columns = sample.iloc[:,1:-1]
-    table_input = sample['concept:name'].drop_duplicates().reset_index(drop=True)
-    for user in user_columns.columns:
-        user_data = sample.groupby(['concept:name'], as_index=False).agg({user:'sum'})
-        table_input = pd.concat([table_input, user_data.iloc[:,1:]], axis=1)
-    table_input.sort_values(by='concept:name', inplace=True)
-    table_input = np.asarray(table_input.iloc[:,1:])
+    ax[position].imshow(np.asarray(queried_case[['bounded_existence_O_ACCEPTED', 'four_eye_principle_O_CREATED_O_ACCEPTED']][0:1]).transpose(), cmap='Reds')
+    ax[position].set_yticks(np.arange(2))
+    ax[position].set_xticks(np.arange(1))
+    ax[position].set_yticklabels(['Bounded existence (O_ACCEPTED)', 'Seperation of duties (O_CREATED and O_ACCEPTED)'])
+    ax[position].set_xticklabels(['Does the case comply?'])
+    ax[position].set_title("Tested compliance rules", y=1.02)
 
-    # Create custom table
-    activities, resources = sorted(list(queried_case['concept:name'].unique())), list(queried_case['org:resource'].unique())
-    ax[position].imshow(table_input, cmap='Reds')
-    ax[position].set_xticks(np.arange(len(resources)))
-    ax[position].set_yticks(np.arange(len(activities)))
-    ax[position].set_xticklabels(resources)
-    ax[position].set_yticklabels(activities)
-    ax[position].set_title("Activities performed per resource", y=1.02)
-    plt.setp(ax[position].get_xticklabels(), rotation=45, ha="right",
-            rotation_mode="anchor")
-            
-    # Loop over data dimensions and create text annotations.
-    for i in range(len(activities)):
-        for j in range(len(resources)):
-            if table_input[i, j] == 0:
-                pass
-            else:
-                text = ax[position].text(j, i, table_input[i, j],
-                            ha="center", va="center", color="w")
+    annotation = queried_case[['bounded_existence_O_ACCEPTED', 'four_eye_principle_O_CREATED_O_ACCEPTED']][0:1]
+
+    if annotation.iloc[0,0] == 0:
+        annotation.iloc[0,0] = 'Yes'
+    else:
+        annotation.iloc[0,0] = 'No'
+
+    if annotation.iloc[0,1] == 0:
+        annotation.iloc[0,1] = 'Yes'
+    else:
+        annotation.iloc[0,1] = 'No'
+
+    if annotation.iloc[0,0] == 'Yes':
+        text = ax[position].text(0, 0, annotation.iloc[0,0], ha="center", va="center", color="b")
+    else:
+        text = ax[position].text(0, 1, annotation.iloc[0,1], ha="center", va="center", color="w")
+
+    
+    if annotation.iloc[0,1] == 'Yes':
+        text = ax[position].text(0, 1, annotation.iloc[0,1], ha="center", va="center", color="b")
+    else:
+        text = ax[position].text(0, 1, annotation.iloc[0,1], ha="center", va="center", color="w")
+
     position += 1
 
     # Create input for ancedent/consequence table
@@ -196,22 +197,25 @@ def show_anomaly(queried, df):
                 empty_list = empty_list.append({'activity': activity, 'consequence': consequence}, ignore_index=True)
             else:
                 pass
+    activity_list = empty_list
     empty_list = empty_list.groupby(['activity', 'consequence']).size()
     empty_list = pd.DataFrame(empty_list).reset_index()
     empty_list = empty_list.pivot_table(index='activity', columns='consequence', values=0, fill_value=0).reset_index()
     empty_list.drop(['activity'], axis=1, inplace=True)
 
     # Create custom table
-    activities = sorted(list(queried_case['concept:name'].unique()))
+    # activities = sorted(list(activity_list['activity'].unique()))
+    activities_y = sorted(list(activity_list['activity'].unique()))
+    activities_x = sorted(list(activity_list['consequence'].unique()))
     ax[position].imshow(np.asarray(empty_list), cmap='Reds')
-    ax[position].set_xticks(np.arange(len(activities)))
-    ax[position].set_yticks(np.arange(len(activities)))
-    ax[position].set_xticklabels(activities)
-    ax[position].set_yticklabels(activities)
-    ax[position].set_title("Activities performed per resource", y=1.02)
+    ax[position].set_xticks(np.arange(len(activities_x)))
+    ax[position].set_yticks(np.arange(len(activities_y)))
+    ax[position].set_xticklabels(activities_x)
+    ax[position].set_yticklabels(activities_y)
+    ax[position].set_title("Antecedent (Y-xis) and consequence activities (X-axis)", y=1.02)
     plt.setp(ax[position].get_xticklabels(), rotation=45, ha="right",
             rotation_mode="anchor")
-    np.asarray(empty_list)        
+       
     # Loop over data dimensions and create text annotations.
     for i in range(len(empty_list)):
         for j in range(len(empty_list.columns)):
@@ -219,8 +223,37 @@ def show_anomaly(queried, df):
                 pass
             else:
                 text = ax[position].text(j, i, np.asarray(empty_list)[i,j],
+                        ha="center", va="center", color="w")
+    position += 1
+
+    # Create input for research/activity table
+    table_input = pd.DataFrame(queried_case[['concept:name','org:resource']].value_counts().reset_index())
+    table_input = table_input.pivot_table(index='concept:name', columns='org:resource', values=0, fill_value=0).reset_index()
+    table_input.drop(['concept:name'], axis=1, inplace=True)
+    table_input = np.asarray(table_input)
+
+    # Create custom table
+    activities, resources = sorted(list(queried_case['concept:name'].unique())), list(queried_case['org:resource'].unique())
+    ax[position].imshow(table_input, cmap='Reds')
+    ax[position].set_xticks(np.arange(len(resources)))
+    ax[position].set_yticks(np.arange(len(activities)))
+    ax[position].set_xticklabels(resources)
+    ax[position].set_yticklabels(activities)
+    ax[position].set_title("Activities performed per resource", y=1.02)
+    plt.setp(ax[position].get_xticklabels(), rotation=45, ha="right",
+            rotation_mode="anchor")
+
+    # Loop over data dimensions and create text annotations.
+    for i in range(len(activities)):
+        for j in range(len(resources)):
+            if table_input[i, j] == 0:
+                pass
+            else:
+                text = ax[position].text(j, i, table_input[i, j],
                             ha="center", va="center", color="w")
     position += 1
+
+    plt.tight_layout()
 
     # Create dataframe used to make base plots
     data = pd.concat([df.num_cols, df.case_id_col], axis=1)
@@ -273,7 +306,8 @@ def show_anomaly(queried, df):
         ax[position].yaxis.labelpad = 20
 
         position += 1
+        plt.savefig('/workspaces/thesis/vis/{}_2012/{}_{}.jpg'.format(index, index, queried), bbox_inches='tight')
 
-    plt.savefig('testplot_.png')
 
-    return plt.show()
+
+    # return plt.show()

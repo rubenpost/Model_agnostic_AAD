@@ -52,6 +52,12 @@ encoded_data = pd.concat([encoded_numeric, encoded_categorical.reset_index()], a
 # encoded_data = pd.read_csv('/workspaces/thesis/data/encoded/encoded_2012.csv')
 encoded_data.to_csv('/workspaces/thesis/data/encoded/encoded_2012.csv')
 
+# encoded_numeric = encoder.numeric_encoder(preprocessed, numeric_encoding)
+# encoded_categorical = encoder.categorical_encoder(preprocessed)
+# encoded_data = pd.concat([encoded_numeric, encoded_categorical.reset_index()], axis=1).fillna(0)
+encoded_data = pd.read_csv('/workspaces/thesis/data/encoded/encoded_2012.csv')
+# preprocessed.num_cols.drop(['Unnamed: 0'], axis=1, inplace=True)
+encoded_data.drop(['Unnamed: 0'], axis=1, inplace=True)
 # %%
 # Detect anomalies 
 # aad = detect_anomalies(np.asarray(encoded_data), preprocessed)

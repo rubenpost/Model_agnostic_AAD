@@ -125,6 +125,12 @@ def detect_anomalies(x, df):
 def show_anomaly(queried, df, index=None):
 
     # Grap queried case from population
+    if 'case_length' in df.data.columns:
+        df.data.rename(columns={'case_length':'case_length (days)'}, inplace=True)
+
+    if 'case_length' in df.num_cols.columns:
+        df.num_cols.rename(columns={'case_length':'case_length (days)'}, inplace=True)
+
     gp = df.data.groupby('case:concept:name')
     queried_case = gp.get_group(df.data['case:concept:name'].unique()[queried])
 

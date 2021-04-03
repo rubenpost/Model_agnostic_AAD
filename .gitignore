@@ -2,4 +2,7 @@ __pycache__
 .gitignore
 .DS_Store
 vis
+<<<<<<< HEAD
 temp
+=======
+>>>>>>> 9d3e20446139de64a45dd86e9bfd43506ce7c78b

@@ -157,7 +157,7 @@ def show_anomaly(queried, df, index=None):
     ax[position].imshow(np.asarray(queried_case[['bounded_existence_O_ACCEPTED', 'four_eye_principle_O_CREATED_O_ACCEPTED']][0:1]).transpose(), cmap='Reds')
     ax[position].set_yticks(np.arange(2))
     ax[position].set_xticks(np.arange(1))
-    ax[position].set_yticklabels(['Bounded existence (O_ACCEPTED)', 'Four eye principle (O_CREATED and O_ACCEPTED)'])
+    ax[position].set_yticklabels(['Bounded existence (O_ACCEPTED)', 'Seperation of duties (O_CREATED and O_ACCEPTED)'])
     ax[position].set_xticklabels(['Does the case comply?'])
     ax[position].set_title("Tested compliance rules", y=1.02)
 

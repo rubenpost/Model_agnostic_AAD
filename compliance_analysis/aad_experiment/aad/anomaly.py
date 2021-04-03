@@ -122,7 +122,7 @@ def detect_anomalies(x, df):
 
     return ordered_idxs, model, x_transformed, queried, y_labeled, original_scores
 
-def show_anomaly(queried, df):
+def show_anomaly(queried, df, index=None):
 
     # Grap queried case from population
     if 'case_length' in df.data.columns:
@@ -145,7 +145,7 @@ def show_anomaly(queried, df):
     # Set seaborn style, subplot size, and initiate position number
     sns.set(style="white", color_codes=True, font_scale = 1)
     sns.despine(left=True)
-    fig, ax = plt.subplots(len(df.num_cols.columns)+2, figsize=(10, (len(df.num_cols.columns)+2)*8))
+    fig, ax = plt.subplots(len(df.num_cols.columns)+3, figsize=(10, (len(df.num_cols.columns)+3)*10))
     position = 0
 
     # Visualize process trace
@@ -158,6 +158,38 @@ def show_anomaly(queried, df):
     ax[position].axis('off')
     ax[position].imshow(img)
     ax[position].set_title(f"Process model of case {queried}")
+    position += 1
+
+    ax[position].imshow(np.asarray(queried_case[['bounded_existence_O_ACCEPTED', 'four_eye_principle_O_CREATED_O_ACCEPTED']][0:1]).transpose(), cmap='Reds')
+    ax[position].set_yticks(np.arange(2))
+    ax[position].set_xticks(np.arange(1))
+    ax[position].set_yticklabels(['Bounded existence (O_ACCEPTED)', 'Seperation of duties (O_CREATED and O_ACCEPTED)'])
+    ax[position].set_xticklabels(['Does the case comply?'])
+    ax[position].set_title("Tested compliance rules", y=1.02)
+
+    annotation = queried_case[['bounded_existence_O_ACCEPTED', 'four_eye_principle_O_CREATED_O_ACCEPTED']][0:1]
+
+    if annotation.iloc[0,0] == 0:
+        annotation.iloc[0,0] = 'Yes'
+    else:
+        annotation.iloc[0,0] = 'No'
+
+    if annotation.iloc[0,1] == 0:
+        annotation.iloc[0,1] = 'Yes'
+    else:
+        annotation.iloc[0,1] = 'No'
+
+    if annotation.iloc[0,0] == 'Yes':
+        text = ax[position].text(0, 0, annotation.iloc[0,0], ha="center", va="center", color="b")
+    else:
+        text = ax[position].text(0, 1, annotation.iloc[0,1], ha="center", va="center", color="w")
+
+    
+    if annotation.iloc[0,1] == 'Yes':
+        text = ax[position].text(0, 1, annotation.iloc[0,1], ha="center", va="center", color="b")
+    else:
+        text = ax[position].text(0, 1, annotation.iloc[0,1], ha="center", va="center", color="w")
+
     position += 1
 
     # Create input for ancedent/consequence table
@@ -189,7 +221,7 @@ def show_anomaly(queried, df):
     ax[position].set_title("Antecedent (Y-xis) and consequence activities (X-axis)", y=1.02)
     plt.setp(ax[position].get_xticklabels(), rotation=45, ha="right",
             rotation_mode="anchor")
-    np.asarray(empty_list)        
+       
     # Loop over data dimensions and create text annotations.
     for i in range(len(empty_list)):
         for j in range(len(empty_list.columns)):
@@ -280,7 +312,8 @@ def show_anomaly(queried, df):
         ax[position].yaxis.labelpad = 20
 
         position += 1
-        plt.savefig('/workspaces/thesis/vis/tail_2012/head_{}.jpg'.format(queried), bbox_inches='tight')
+        plt.savefig('/workspaces/thesis/vis/{}_2012/{}_{}.jpg'.format(index, index, queried), bbox_inches='tight')
+
 
 
     # return plt.show()

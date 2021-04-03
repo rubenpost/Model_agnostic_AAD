@@ -9,26 +9,32 @@ from preprocessing.enrich import enrich
 from compliance_analysis.aad_experiment.aad.anomaly import detect_anomalies
 from compliance_analysis.aad_experiment.aad.anomaly import show_anomaly
 tqdm.pandas()
-data_source = '/workspaces/thesis/data/preprocessed/2012_A.gzip'
+
+data_path = '/workspaces/thesis/data/preprocessed/2012_O.gzip'
 # %%
 # Preprocess data
 preprocessed = preprocessor.column_rename(
-    data_path = data_source,
+    data_path = data_path,
     case_id_col = 'case:concept:name', activity_col = 'concept:name', 
     timestamp_col = 'time:timestamp', resource_col = 'org:resource')
 
 # %%
 # Enrich data
-# preprocessed.data = preprocessed.data.groupby(['case:concept:name']).progress_apply(enrich.feature_engineering)
-# preprocessed.data = preprocessed.data.groupby(['case:concept:name']).progress_apply(enrich.bounded_existence, activity = 'A_SUBMITTED')
+preprocessed.data.rename(columns= {'AMOUNT_REQ':'Request loan amount',
+                                   'activity':'concept:name'}, inplace=True)
+preprocessed.data = preprocessed.data.groupby(['case:concept:name']).filter(lambda g: any(g['concept:name'] == 'O_ACCEPTED'))
+preprocessed.data = preprocessed.data.groupby(['case:concept:name']).progress_apply(enrich.feature_engineering)
+preprocessed.data = preprocessed.data.groupby(['case:concept:name']).progress_apply(enrich.bounded_existence, activity = 'O_ACCEPTED')
+preprocessed.data = preprocessed.data.groupby(['case:concept:name']).progress_apply(enrich.four_eye_principle, activity1 = 'O_CREATED', activity2 = 'O_ACCEPTED')
 
-# preprocessed = datamanager(data = preprocessed.data)
-
-
+# %%
+preprocessed = datamanager(data = preprocessed.data)
+preprocessed.num_cols.drop(['Unnamed: 0'], axis=1, inplace=True)
+preprocessed.data.drop(['Unnamed: 0'], axis=1, inplace=True)
 # %%
 # Encode data
 numeric_encoding = {
-    'AMOUNT_REQ':'max'}#,
+    'Request loan amount':'max'}#,
     # 'FirstWithdrawalAmount':'sum',
     # 'NumberOfTerms':'max',
     # 'Accepted':'sum',
@@ -39,6 +45,12 @@ numeric_encoding = {
     # 'case_length':'last',
     # 'activity_count':'last',
     # 'bounded_existence_O_Created':'last'}
+
+encoded_numeric = encoder.numeric_encoder(preprocessed, numeric_encoding)
+encoded_categorical = encoder.categorical_encoder(preprocessed)
+encoded_data = pd.concat([encoded_numeric, encoded_categorical.reset_index()], axis=1).fillna(0)
+# encoded_data = pd.read_csv('/workspaces/thesis/data/encoded/encoded_2012.csv')
+encoded_data.to_csv('/workspaces/thesis/data/encoded/encoded_2012.csv')
 
 # encoded_numeric = encoder.numeric_encoder(preprocessed, numeric_encoding)
 # encoded_categorical = encoder.categorical_encoder(preprocessed)
@@ -61,26 +73,26 @@ df2 = df2[["scores", "@@index"]]
 df2 = df2.sort_values("scores")
 print(df2)
 
+# %%
 process = 1
-for i in df2['@@index'][7500:7600]:
-    show_anomaly(i, preprocessed)
+for i in df2['@@index'].head(35):
+    show_anomaly(i, preprocessed, 'head')
     print('Processed {} of 100..'.format(process))
     process += 1
 print('Done')
 
-# %%
-preprocessed.data
-# %%
-import pandas as pd
-df = pd.read_parquet('/workspaces/thesis/data/raw/BPI_Challenge_2012.gzip')
-# %%
-df
-# %%
-df['org:resource'].unique(ascending=True)
-# %%
-df.describe(include='all')
-# %%
-encoded_data.shape
-# %%
-preprocessed.data['lifecycle:transition'].unique()
+process = 1
+for i in df2['@@index'][36:100]:
+    show_anomaly(i, preprocessed, 'head')
+    print('Processed {} of 100..'.format(process))
+    process += 1
+print('Done')
+
+process = 1
+for i in df2['@@index'].tail(100):
+    show_anomaly(i, preprocessed, 'tail')
+    print('Processed {} of 100..'.format(process))
+    process += 1
+print('Done')
+
 # %%

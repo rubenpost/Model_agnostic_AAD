@@ -1,12 +1,15 @@
-Active Anomaly Detection (AAD) with process mining enables end-users to both gain insight in the process of the client and train the algorith at the same time.
 DESCRIPTION
 --------------------
+Active Anomaly Detection (AAD) with process mining enables end-users to both gain insight in the process of the client and adjust the weights of individual models in the ensemble method at the same time. In main.py, the AAD framework is instantiated with an Isolation Forest.
+
 
 INSTALL
 --------------------
+All dependencies can be found in requirements.txt and are automatically installed when opening the Dockerfile.
 
 SETUP
 --------------------
+First, the event log is renamed to standard naming scheme, attributes are categorized, and encoded. Then, an Isolation Forest is trained and the top n anomalous cases based on the anomaly score are visualized and reviewed by domain experts. The feedback of the domain experts adjusts the weight of each Isolation Tree in the Isolation Forest, embedding domain knowledge in the algorithm.
 
 GITHUB
 

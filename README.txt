@@ -9,7 +9,7 @@ All dependencies can be found in requirements.txt and are automatically installe
 
 SETUP
 --------------------
-First, the event log is renamed to standard naming scheme, attributes are categorized, and encoded. Then, an Isolation Forest is trained and the top n anomalous cases based on the anomaly score are visualized and reviewed by domain experts. The feedback of the domain experts adjusts the weight of each Isolation Tree in the Isolation Forest, embedding domain knowledge in the algorithm.
+First, the event log is renamed to standard naming scheme, attributes are categorized, and encoded. Then, an Isolation Forest is trained and the top n anomalous cases based on the anomaly score are visualized and reviewed by domain experts. The feedback of the domain experts adjusts the weight of each Isolation Tree in the Isolation Forest, embedding domain knowledge in the algorithm. All of this is done by running main.py.
 
 GITHUB
 

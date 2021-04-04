@@ -7,11 +7,15 @@ INSTALL
 --------------------
 All dependencies can be found in requirements.txt and are automatically installed when opening the Dockerfile.
 
+
 SETUP
 --------------------
 Run main.py to preprocess and enrich event log, calculate anomaly score, and run feedback loop.
 
+
 GITHUB
+--------------------
+
 
 Register name/email:            git config --global user.name/email "name"
 Initiate git:                   git init

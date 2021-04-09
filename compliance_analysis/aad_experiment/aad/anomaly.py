@@ -31,7 +31,7 @@ from pm4py.visualization.dfg import visualizer as dfg_visualization
 # %%
 logger = logging.getLogger(__name__)
 
-def get_debug_args(budget=1, detector_type=AAD_IFOREST):
+def get_debug_args(budget=10, detector_type=AAD_IFOREST):
     # return the AAD parameters what will be parsed later
     return ["--resultsdir=./temp", "--randseed=42",
             "--reruns=1",
@@ -312,8 +312,9 @@ def show_anomaly(queried, df, index=None):
         ax[position].yaxis.labelpad = 20
 
         position += 1
-        plt.savefig('/workspaces/thesis/vis/{}_2012/{}_{}.jpg'.format(index, index, queried), bbox_inches='tight')
+        if index != None:
+            plt.savefig('/workspaces/thesis/vis/{}_2012/{}_{}.jpg'.format(index, index, queried), bbox_inches='tight')
 
 
 
-    # return plt.show()
+    return plt.show()

@@ -125,11 +125,15 @@ def detect_anomalies(x, df):
 def show_anomaly(queried, df, index=None):
 
     # Grap queried case from population
-    if 'case_length' in df.data.columns:
-        df.data.rename(columns={'case_length':'case_length (days)'}, inplace=True)
+    average_cancel = df.data.groupby(['case:concept:name'])['average_cancellation'].mean()
+    average_cancel_total = average_cancel.value_counts()[0]    
+    average_cancel = average_cancel.mean()
+    case_number = len(df.data.groupby(['case:concept:name']))
+    df.num_cols.drop(['average_cancellation', 'average_resource'], axis=1, inplace=True)
 
-    if 'case_length' in df.num_cols.columns:
-        df.num_cols.rename(columns={'case_length':'case_length (days)'}, inplace=True)
+    average_resource = df.data.groupby(['case:concept:name'])['average_resource'].mean()
+    resource_number = average_resource
+    average_resource = round(average_resource.mean())
 
     gp = df.data.groupby('case:concept:name')
     queried_case = gp.get_group(df.data['case:concept:name'].unique()[queried])
@@ -170,22 +174,22 @@ def show_anomaly(queried, df, index=None):
     annotation = queried_case[['bounded_existence_O_ACCEPTED', 'four_eye_principle_O_CREATED_O_ACCEPTED']][0:1]
 
     if annotation.iloc[0,0] == 0:
-        annotation.iloc[0,0] = 'Yes'
+        annotation.iloc[0,0] = 'No violation noted'
     else:
-        annotation.iloc[0,0] = 'No'
+        annotation.iloc[0,0] = 'Violation noted'
 
     if annotation.iloc[0,1] == 0:
-        annotation.iloc[0,1] = 'Yes'
+        annotation.iloc[0,1] = 'No violation noted'
     else:
-        annotation.iloc[0,1] = 'No'
+        annotation.iloc[0,1] = 'Violation noted'
 
-    if annotation.iloc[0,0] == 'Yes':
+    if annotation.iloc[0,0] == 'No violation noted':
         text = ax[position].text(0, 0, annotation.iloc[0,0], ha="center", va="center", color="b")
     else:
         text = ax[position].text(0, 1, annotation.iloc[0,1], ha="center", va="center", color="w")
 
     
-    if annotation.iloc[0,1] == 'Yes':
+    if annotation.iloc[0,1] == 'No violation noted':
         text = ax[position].text(0, 1, annotation.iloc[0,1], ha="center", va="center", color="b")
     else:
         text = ax[position].text(0, 1, annotation.iloc[0,1], ha="center", va="center", color="w")
@@ -218,7 +222,12 @@ def show_anomaly(queried, df, index=None):
     ax[position].set_yticks(np.arange(len(activities_y)))
     ax[position].set_xticklabels(activities_x)
     ax[position].set_yticklabels(activities_y)
-    ax[position].set_title("Antecedent (Y-xis) and consequence activities (X-axis)", y=1.02)
+    
+    cancel_queried = queried_case['concept:name'].value_counts()
+    cancel_queried = cancel_queried['O_CANCELLED']
+    percentage_cancel = cancel_queried / case_number
+    title = "Antecedent (Y-xis) and consequence activities (X-axis). \n Out of all {} cases, {} have cancellations. This case is cancelled {} times, which happends in {}% of the cases.".format(case_number, average_cancel_total, cancel_queried, str(round(percentage_cancel, 3)))
+    ax[position].set_title(title, y=1.02)
     plt.setp(ax[position].get_xticklabels(), rotation=45, ha="right",
             rotation_mode="anchor")
        
@@ -245,7 +254,13 @@ def show_anomaly(queried, df, index=None):
     ax[position].set_yticks(np.arange(len(activities)))
     ax[position].set_xticklabels(resources)
     ax[position].set_yticklabels(activities)
-    ax[position].set_title("Activities performed per resource", y=1.02)
+    resource_queried = queried_case['org:resource'].nunique()
+    resource_number = resource_number.value_counts()
+    resource_number = resource_number[resource_queried]
+    resource_percenteage = resource_number / case_number
+
+    title = "Activities performed by resources. \n On average, a case is performed by {} resources. This case was performed by {} resources. \n {}% of the cases are performed by {} resources.".format(average_resource, resource_queried, str(round(resource_percenteage, 3)), resource_queried)
+    ax[position].set_title(title, y=1.02)
     plt.setp(ax[position].get_xticklabels(), rotation=45, ha="right",
             rotation_mode="anchor")
 
@@ -278,6 +293,7 @@ def show_anomaly(queried, df, index=None):
         patches = ax[position].patches
         bin_width = patches[0].get_width()
         bin_number = round(variable_value / bin_width)
+        bin_number -= 1
         patches[bin_number].set_facecolor('r')
         ax[position].axvline(x=bin_width*bin_number, ymax=0, color='r')
 
@@ -293,10 +309,10 @@ def show_anomaly(queried, df, index=None):
             bin_number += 1
             variable_value += bin_width
         if variable == 'OfferedAmount':
-            text_y = (patches[bin_number].get_height()/max(heights))+0.05
+            text_y = (patches[bin_number].get_height()/max(heights))+0.02
             text_x = (bin_width*bin_number)+(bin_width*1.5)              
         else:
-            text_y = (patches[bin_number].get_height()/max(heights))+0.05
+            text_y = (patches[bin_number].get_height()/max(heights))+0.02
             text_x = (bin_width*bin_number)+bin_width/2
         plt.text(text_x, text_y, text, transform=ax[position].get_xaxis_transform())
 

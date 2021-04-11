@@ -22,6 +22,7 @@ class preprocessor:
         # retype
         df['case:concept:name'] = df['case:concept:name'].astype('str')
         df['concept:name'] = df['concept:name'].astype('str')
+        df['time:timestamp'] = df['time:timestamp'].astype(str).str.slice(stop=19)
         df['time:timestamp'] = pd.to_datetime(df["time:timestamp"])
         df['org:resource'] = df['org:resource'].astype('str')
 

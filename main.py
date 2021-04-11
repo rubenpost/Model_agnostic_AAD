@@ -24,9 +24,9 @@ preprocessed.data.rename(columns= {'AMOUNT_REQ':'Request loan amount',
                                    'activity':'concept:name'}, inplace=True)
 preprocessed.data = preprocessed.data.groupby(['case:concept:name']).filter(lambda g: any(g['concept:name'] == 'O_ACCEPTED'))
 preprocessed.data = preprocessed.data.groupby(['case:concept:name']).progress_apply(enrich.feature_engineering)
+preprocessed.data = preprocessed.data.groupby(['case:concept:name']).progress_apply(enrich.get_average)
 preprocessed.data = preprocessed.data.groupby(['case:concept:name']).progress_apply(enrich.bounded_existence, activity = 'O_ACCEPTED')
 preprocessed.data = preprocessed.data.groupby(['case:concept:name']).progress_apply(enrich.four_eye_principle, activity1 = 'O_CREATED', activity2 = 'O_ACCEPTED')
-
 # %%
 preprocessed = datamanager(data = preprocessed.data)
 preprocessed.num_cols.drop(['Unnamed: 0'], axis=1, inplace=True)
@@ -93,4 +93,11 @@ aad = detect_anomalies(np.asarray(encoded_data), preprocessed)
 # print('Done')
 # %%
 preprocessed.data
+# %%
+test = preprocessed.data.groupby(['case:concept:name'])['average_resource'].mean()
+test.value_counts()
+# %%
+len(test)
+# %%
+str(round(111/2243, 3))
 # %%

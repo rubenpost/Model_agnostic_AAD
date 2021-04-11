@@ -33,4 +33,13 @@ class enrich:
         self['Case length in calendar days'] = round(self['Case length in calendar days'])
         self['activity_count'] = len(self['concept:name'])
         return self
+
+    def get_average(self):
+        test = self['concept:name'].value_counts()
+        if 'O_CANCELLED' in test:
+            self['average_cancellation'] = test['O_CANCELLED']
+        else:
+            self['average_cancellation'] = 0
+        self['average_resource'] = self['org:resource'].nunique()
+        return self
 # %%

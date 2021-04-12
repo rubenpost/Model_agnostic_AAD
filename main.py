@@ -27,6 +27,12 @@ preprocessed.data = preprocessed.data.groupby(['case:concept:name']).progress_ap
 preprocessed.data = preprocessed.data.groupby(['case:concept:name']).progress_apply(enrich.get_average)
 preprocessed.data = preprocessed.data.groupby(['case:concept:name']).progress_apply(enrich.bounded_existence, activity = 'O_ACCEPTED')
 preprocessed.data = preprocessed.data.groupby(['case:concept:name']).progress_apply(enrich.four_eye_principle, activity1 = 'O_CREATED', activity2 = 'O_ACCEPTED')
+preprocessed.data['concept:name'].replace({'O_SELECTED':'Loan requested',
+                                           'O_CREATED':'Create loan offer',
+                                           'O_SENT':'Sent loan offer to client',
+                                           'O_SENT_BACK':'Receive documents from client',
+                                           'O_ACCEPTED':'Approve loan request',
+                                           'O_CANCELLED':'Cancel loan request'}, inplace=True)
 # %%
 preprocessed = datamanager(data = preprocessed.data)
 preprocessed.num_cols.drop(['Unnamed: 0'], axis=1, inplace=True)
@@ -100,4 +106,4 @@ test.value_counts()
 len(test)
 # %%
 str(round(111/2243, 3))
-# %%
+# # %%

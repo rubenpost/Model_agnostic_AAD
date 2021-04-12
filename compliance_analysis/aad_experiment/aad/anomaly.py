@@ -129,7 +129,6 @@ def show_anomaly(queried, df, index=None):
     average_cancel_total = average_cancel.value_counts()[0]    
     average_cancel = average_cancel.mean()
     case_number = len(df.data.groupby(['case:concept:name']))
-    df.num_cols.drop(['average_cancellation', 'average_resource'], axis=1, inplace=True)
 
     average_resource = df.data.groupby(['case:concept:name'])['average_resource'].mean()
     resource_number = average_resource
@@ -149,7 +148,7 @@ def show_anomaly(queried, df, index=None):
     # Set seaborn style, subplot size, and initiate position number
     sns.set(style="white", color_codes=True, font_scale = 1)
     sns.despine(left=True)
-    fig, ax = plt.subplots(len(df.num_cols.columns)+3, figsize=(10, (len(df.num_cols.columns)+3)*10))
+    fig, ax = plt.subplots(len(df.num_cols.columns), figsize=(10, (len(df.num_cols.columns))*10))
     position = 0
 
     # Visualize process trace
@@ -164,37 +163,6 @@ def show_anomaly(queried, df, index=None):
     ax[position].set_title(f"Process model of case {queried}")
     position += 1
 
-    ax[position].imshow(np.asarray(queried_case[['bounded_existence_O_ACCEPTED', 'four_eye_principle_O_CREATED_O_ACCEPTED']][0:1]).transpose(), cmap='Reds')
-    ax[position].set_yticks(np.arange(2))
-    ax[position].set_xticks(np.arange(1))
-    ax[position].set_yticklabels(['Bounded existence (O_ACCEPTED)', 'Seperation of duties (O_CREATED and O_ACCEPTED)'])
-    ax[position].set_xticklabels(['Does the case comply?'])
-    ax[position].set_title("Tested compliance rules", y=1.02)
-
-    annotation = queried_case[['bounded_existence_O_ACCEPTED', 'four_eye_principle_O_CREATED_O_ACCEPTED']][0:1]
-
-    if annotation.iloc[0,0] == 0:
-        annotation.iloc[0,0] = 'No violation noted'
-    else:
-        annotation.iloc[0,0] = 'Violation noted'
-
-    if annotation.iloc[0,1] == 0:
-        annotation.iloc[0,1] = 'No violation noted'
-    else:
-        annotation.iloc[0,1] = 'Violation noted'
-
-    if annotation.iloc[0,0] == 'No violation noted':
-        text = ax[position].text(0, 0, annotation.iloc[0,0], ha="center", va="center", color="b")
-    else:
-        text = ax[position].text(0, 1, annotation.iloc[0,1], ha="center", va="center", color="w")
-
-    
-    if annotation.iloc[0,1] == 'No violation noted':
-        text = ax[position].text(0, 1, annotation.iloc[0,1], ha="center", va="center", color="b")
-    else:
-        text = ax[position].text(0, 1, annotation.iloc[0,1], ha="center", va="center", color="w")
-
-    position += 1
 
     # Create input for ancedent/consequence table
     queried_case.reset_index(drop=True, inplace=True)
@@ -224,9 +192,9 @@ def show_anomaly(queried, df, index=None):
     ax[position].set_yticklabels(activities_y)
     
     cancel_queried = queried_case['concept:name'].value_counts()
-    cancel_queried = cancel_queried['O_CANCELLED']
+    cancel_queried = cancel_queried['Cancel loan request']
     percentage_cancel = cancel_queried / case_number
-    title = "Antecedent (Y-xis) and consequence activities (X-axis). \n Out of all {} cases, {} have cancellations. This case is cancelled {} times, which happends in {}% of the cases.".format(case_number, average_cancel_total, cancel_queried, str(round(percentage_cancel, 3)))
+    title = "Antecedent (Y-xis) and consequence activities (X-axis). \n Out of all {} loan requests, {} have cancellations. \n This loan request is cancelled {} times, which happends in {}% of the loan requests.".format(case_number, average_cancel_total, cancel_queried, str(round(percentage_cancel, 3)))
     ax[position].set_title(title, y=1.02)
     plt.setp(ax[position].get_xticklabels(), rotation=45, ha="right",
             rotation_mode="anchor")
@@ -259,7 +227,7 @@ def show_anomaly(queried, df, index=None):
     resource_number = resource_number[resource_queried]
     resource_percenteage = resource_number / case_number
 
-    title = "Activities performed by resources. \n On average, a case is performed by {} resources. This case was performed by {} resources. \n {}% of the cases are performed by {} resources.".format(average_resource, resource_queried, str(round(resource_percenteage, 3)), resource_queried)
+    title = "Activities performed by resources. \n On average, a loan request is performed by {} resources. This loan request was performed by {} resources. \n {}% of the loan requets are performed by {} resources.".format(average_resource, resource_queried, str(round(resource_percenteage, 3)), resource_queried)
     ax[position].set_title(title, y=1.02)
     plt.setp(ax[position].get_xticklabels(), rotation=45, ha="right",
             rotation_mode="anchor")
@@ -281,7 +249,7 @@ def show_anomaly(queried, df, index=None):
     plot_data = data.dropna(subset=df.num_cols.columns).groupby(['case:concept:name']).max().reset_index()
 
     # Loop over every variable we want to visualize
-    for variable in df.num_cols.drop(['activity_count'], axis=1).columns:
+    for variable in df.num_cols.drop(['activity_count', 'Request loan amount', 'average_cancellation', 'average_resource'], axis=1).columns:
 
         # Plot the variable
         sns.histplot(plot_data[variable], color="mistyrose", ax=ax[position], bins=15)
@@ -316,6 +284,9 @@ def show_anomaly(queried, df, index=None):
             text_x = (bin_width*bin_number)+bin_width/2
         plt.text(text_x, text_y, text, transform=ax[position].get_xaxis_transform())
 
+        title = 'Histogram showing the length of other loan requests (pink bars) and the length of the potential key item (red bar). \n The higher the bar, the more often a loan request of that length appears in the population.'
+        ax[position].set_title(title, y=1.02)
+
         # Adjust labels
         handle1 = mpatches.Patch(color='r', label='Sample')
         handle2 = mpatches.Patch(color='mistyrose', label='Population')
@@ -328,9 +299,40 @@ def show_anomaly(queried, df, index=None):
         ax[position].yaxis.labelpad = 20
 
         position += 1
-        if index != None:
-            plt.savefig('/workspaces/thesis/vis/{}_2012/{}_{}.jpg'.format(index, index, queried), bbox_inches='tight')
 
+    ax[position].imshow(np.asarray(queried_case[['bounded_existence_O_ACCEPTED', 'four_eye_principle_O_CREATED_O_ACCEPTED']][0:1]).transpose(), cmap='Reds')
+    ax[position].set_yticks(np.arange(2))
+    ax[position].set_xticks(np.arange(1))
+    ax[position].set_yticklabels(['Check whether the loan is approved only ones', 'Seperation of duties for the activities: \n \'Loan request\' and \'Approve loan request\''])
+    ax[position].set_xticklabels([' '])
+    ax[position].set_title('Two compliance rules were tested:', y=1.02)
 
+    annotation = queried_case[['bounded_existence_O_ACCEPTED', 'four_eye_principle_O_CREATED_O_ACCEPTED']][0:1]
+
+    if annotation.iloc[0,0] == 0:
+        annotation.iloc[0,0] = 'No violation noted'
+    else:
+        annotation.iloc[0,0] = 'Violation noted'
+
+    if annotation.iloc[0,1] == 0:
+        annotation.iloc[0,1] = 'No violation noted'
+    else:
+        annotation.iloc[0,1] = 'Violation noted'
+
+    if annotation.iloc[0,0] == 'No violation noted':
+        text = ax[position].text(0, 0, annotation.iloc[0,0], ha="center", va="center", color="b")
+    else:
+        text = ax[position].text(0, 1, annotation.iloc[0,1], ha="center", va="center", color="w")
+
+    
+    if annotation.iloc[0,1] == 'No violation noted':
+        text = ax[position].text(0, 1, annotation.iloc[0,1], ha="center", va="center", color="b")
+    else:
+        text = ax[position].text(0, 1, annotation.iloc[0,1], ha="center", va="center", color="w")
+
+    position += 1
+    
+    if index != None:
+        plt.savefig('/workspaces/thesis/vis/{}_2012/{}_{}.jpg'.format(index, index, queried), bbox_inches='tight')
 
     return plt.show()

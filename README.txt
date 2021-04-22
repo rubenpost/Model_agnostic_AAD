@@ -15,8 +15,6 @@ Run main.py to preprocess and enrich event log, calculate anomaly score, and run
 
 GITHUB
 --------------------
-
-
 Register name/email:            git config --global user.name/email "name"
 Initiate git:                   git init
 Connect to github repo:         git remote add origin %repo%

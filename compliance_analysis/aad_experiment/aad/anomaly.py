@@ -31,7 +31,7 @@ from pm4py.visualization.dfg import visualizer as dfg_visualization
 # %%
 logger = logging.getLogger(__name__)
 
-def get_debug_args(budget=10, detector_type=AAD_IFOREST):
+def get_debug_args(budget=30, detector_type=AAD_IFOREST):
     # return the AAD parameters what will be parsed later
     return ["--resultsdir=./temp", "--randseed=42",
             "--reruns=1",
@@ -62,7 +62,7 @@ def get_debug_args(budget=10, detector_type=AAD_IFOREST):
             "--log_file=./temp/demo_aad.log",
             "--debug"]
 
-def detect_anomalies(x, df):
+def detect_anomalies(x, y, df=None):
     start = time.time()
     # Prepare the aad arguments. It is easier to first create the parsed args and
     # then create the actual AadOpts from the args  
@@ -89,25 +89,38 @@ def detect_anomalies(x, df):
     queried = []  # labeled instances
     ha = []  # labeled anomaly instances
     hn = []  # labeled nominal instances
+
+    # while len(queried) < opts.budget:
+    #     ordered_idxs, anom_score = model.order_by_score(x_transformed)
+    #     original_scores = ordered_idxs
+    #     qx = qstate.get_next_query(ordered_indexes=ordered_idxs,
+    #                             queried_items=queried)
+    #     queried.extend(qx)
+    #     for xi in qx:
+    #         show_anomaly(xi, df)
+    #         while True:
+    #             y_labeled[xi] = input("Is the trace an anomaly? 1 for yes, 0 for no:")
+    #             if y_labeled[xi] not in (1, 0):
+    #                 print("Not an appropriate choice. Please enter 1 for yes, 0 for no.")
+    #             else:
+    #                 break
+    #         if y_labeled[xi] == 1:
+    #             ha.append(xi)
+    #         else:
+    #             hn.append(xi)
+
     while len(queried) < opts.budget:
         ordered_idxs, anom_score = model.order_by_score(x_transformed)
-        original_scores = ordered_idxs
         qx = qstate.get_next_query(ordered_indexes=ordered_idxs,
-                                queried_items=queried)
+                                   queried_items=queried)
         queried.extend(qx)
         for xi in qx:
-            show_anomaly(xi, df)
-            while True:
-                y_labeled[xi] = input("Is the trace an anomaly? 1 for yes, 0 for no:")
-                if y_labeled[xi] not in (1, 0):
-                    print("Not an appropriate choice. Please enter 1 for yes, 0 for no.")
-                else:
-                    break
-            if y_labeled[xi] == 1:
+            y_labeled[xi] = y[xi]  # populate the known labels
+            if y[xi] == 1:
                 ha.append(xi)
             else:
                 hn.append(xi)
-
+        
         # incorporate feedback and adjust ensemble weights
         model.update_weights(x_transformed, y_labeled, ha=ha, hn=hn, opts=opts, tau_score=opts.tau)
 
@@ -120,7 +133,7 @@ def detect_anomalies(x, df):
     end = time.time()
     print("You have identified %s anomalies. In total, AAD took" % found, end - start, "seconds.")
 
-    return ordered_idxs, model, x_transformed, queried, y_labeled, original_scores
+    return ordered_idxs, model, x_transformed, queried, y_labeled#, original_scores
 
 def show_anomaly(queried, df, index=None):
 
@@ -192,9 +205,17 @@ def show_anomaly(queried, df, index=None):
     ax[position].set_yticklabels(activities_y)
     
     cancel_queried = queried_case['concept:name'].value_counts()
-    cancel_queried = cancel_queried['Cancel loan request']
-    percentage_cancel = cancel_queried / case_number
-    title = "Antecedent (Y-xis) and consequence activities (X-axis). \n Out of all {} loan requests, {} have cancellations. \n This loan request is cancelled {} times, which happends in {}% of the loan requests.".format(case_number, average_cancel_total, cancel_queried, str(round(percentage_cancel, 3)))
+    if 'Cancel loan request' in cancel_queried:
+        cancel_queried = cancel_queried['Cancel loan request']
+    else:
+        cancel_queried = 0
+
+    percentage_cancel = (cancel_queried / case_number) * 100
+
+    if cancel_queried == 0:
+        title = "Antecedent (Y-xis) and consequence activities (X-axis). \n Out of all {} loan requests, {} have cancellations.".format(case_number, average_cancel_total)
+    else:
+        title = "Antecedent (Y-xis) and consequence activities (X-axis). \n Out of all {} loan requests, {} have cancellations. \n This loan request is cancelled {} times, which happends in {}% of the loan requests.".format(case_number, average_cancel_total, cancel_queried, str(round(percentage_cancel, 2)))
     ax[position].set_title(title, y=1.02)
     plt.setp(ax[position].get_xticklabels(), rotation=45, ha="right",
             rotation_mode="anchor")
@@ -225,9 +246,9 @@ def show_anomaly(queried, df, index=None):
     resource_queried = queried_case['org:resource'].nunique()
     resource_number = resource_number.value_counts()
     resource_number = resource_number[resource_queried]
-    resource_percenteage = resource_number / case_number
+    resource_percenteage = (resource_number / case_number) * 100
 
-    title = "Activities performed by resources. \n On average, a loan request is performed by {} resources. This loan request was performed by {} resources. \n {}% of the loan requets are performed by {} resources.".format(average_resource, resource_queried, str(round(resource_percenteage, 3)), resource_queried)
+    title = "Activities performed by resources. \n On average, a loan request is performed by {} resources. This loan request was performed by {} resources. \n {}% of the loan requests are performed by {} resources.".format(average_resource, resource_queried, str(round(resource_percenteage, 2)), resource_queried)
     ax[position].set_title(title, y=1.02)
     plt.setp(ax[position].get_xticklabels(), rotation=45, ha="right",
             rotation_mode="anchor")
@@ -334,5 +355,5 @@ def show_anomaly(queried, df, index=None):
     
     if index != None:
         plt.savefig('/workspaces/thesis/vis/{}_2012/{}_{}.jpg'.format(index, index, queried), bbox_inches='tight')
-
-    return plt.show()
+    else:
+        return plt.show()

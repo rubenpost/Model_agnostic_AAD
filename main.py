@@ -63,28 +63,26 @@ preprocessed.data.drop(['Unnamed: 0'], axis=1, inplace=True)
 encoded_data = pd.read_csv('/workspaces/thesis/data/encoded/encoded_2012.csv')
 # %%
 # Detect anomalies 
-aad = detect_anomalies(np.asarray(encoded_data), preprocessed)
+aad = detect_anomalies(np.asarray(encoded_data), np.asarray(y))
 
 # %%
-# df2 = encoded_data
-# from sklearn.ensemble import IsolationForest
-# model=IsolationForest(random_state=0)
-# model.fit(df2)
-# df2["scores"] = model.decision_function(df2)
-# df2["@@index"] = df2.index
-# df2 = df2[["scores", "@@index"]]
-# df2 = df2.sort_values("scores")
-# print(df2)
+df2 = encoded_data
+from sklearn.ensemble import IsolationForest
+model=IsolationForest(random_state=0)
+model.fit(df2)
+df2["scores"] = model.decision_function(df2)
+df2["@@index"] = df2.index
+df2 = df2[["scores", "@@index"]]
+df2 = df2.sort_values("scores")
+print(df2)
 
-# # %%
+# %%
 # process = 1
 # for i in df2['@@index'].head(35):
 #     show_anomaly(i, preprocessed, 'head')
 #     print('Processed {} of 100..'.format(process))
 #     process += 1
-# print('Done')
 
-# process = 1
 # for i in df2['@@index'][36:100]:
 #     show_anomaly(i, preprocessed, 'head')
 #     print('Processed {} of 100..'.format(process))
@@ -97,13 +95,38 @@ aad = detect_anomalies(np.asarray(encoded_data), preprocessed)
 #     print('Processed {} of 100..'.format(process))
 #     process += 1
 # print('Done')
+
 # %%
-preprocessed.data
+df_survey = pd.read_csv('/workspaces/thesis/AAD Evaluation_April 23, 2021_02.54.csv')
+numbers = ('1', '2', '3', '4', '5', '6', '7', '8', '9')
+select_col = [col for col in df_survey if col.startswith(numbers)]
+df_survey = df_survey[select_col].loc[2:]
+df_survey = pd.DataFrame(df_survey.astype(float).mean(axis=0))#.transpose().dropna(axis=1)
+df_survey = df_survey.reset_index(drop=True)
+df_one = df2['@@index'].head(100).sort_values()
+df_three = df2['@@index'].tail(100).sort_values()
+df_one = df_one.append([df_three])
+df_one = pd.DataFrame(df_one.reset_index(drop=True))
+df_survey['index'] = df_one['@@index'].sort_values()
+df_survey = df_survey.set_index(df_survey['index'])
+df_survey.drop(columns=['index'])
+encoded_data['score'] = df_survey[0]
+labeled_cases = encoded_data[encoded_data['score'] >= 0]
+labeled_cases['score'] = np.where(labeled_cases['score'] > 0.6, 1, 0)
+encoded_data['score'] = labeled_cases['score']
+y = encoded_data['score']
+encoded_data = encoded_data.drop(['score'], axis=1)
+y.fillna(value=-1, inplace=True)
+y
 # %%
-test = preprocessed.data.groupby(['case:concept:name'])['average_resource'].mean()
-test.value_counts()
+encoded_data
 # %%
-len(test)
+x, y = get_synthetic_samples(stype=2)
 # %%
-str(round(111/2243, 3))
-# # %%
+len(y)
+# %%
+np.asarray(labeled_cases['score'])
+# %%
+encoded_data
+# %%
+encoded_data

@@ -17,7 +17,8 @@ GITHUB
 --------------------
 
 
-Register name/email:            git config --global user.name/email "name"
+Register name:                  git config --global user.name "Ruben Post"
+Register email:                 git config --global user.email "r.m.post@students.uu.nl"
 Initiate git:                   git init
 Connect to github repo:         git remote add origin %repo%
 Adding changes to commit:       git add .

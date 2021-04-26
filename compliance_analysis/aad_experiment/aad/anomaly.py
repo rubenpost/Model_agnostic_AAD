@@ -62,7 +62,7 @@ def get_debug_args(budget=30, detector_type=AAD_IFOREST):
             "--log_file=./temp/demo_aad.log",
             "--debug"]
 
-def detect_anomalies(x, y, df=None):
+def detect_anomalies(x, y, query, df=None):
     start = time.time()
     # Prepare the aad arguments. It is easier to first create the parsed args and
     # then create the actual AadOpts from the args  
@@ -75,7 +75,7 @@ def detect_anomalies(x, y, df=None):
     # rng = np.random.RandomState(opts.randseed)
 
     # prepare the AAD model
-    model = get_aad_model(x, opts, 0)
+    model = get_aad_model(x, opts)
     model.fit(x)
     model.init_weights(init_type=opts.init)
 
@@ -113,20 +113,24 @@ def detect_anomalies(x, y, df=None):
         ordered_idxs, anom_score = model.order_by_score(x_transformed)
         qx = qstate.get_next_query(ordered_indexes=ordered_idxs,
                                    queried_items=queried)
+        qx = query
         queried.extend(qx)
+
         for xi in qx:
             y_labeled[xi] = y[xi]  # populate the known labels
             if y[xi] == 1:
                 ha.append(xi)
-            else:
+            if y[xi] == 0:
                 hn.append(xi)
-        
-        # incorporate feedback and adjust ensemble weights
-        model.update_weights(x_transformed, y_labeled, ha=ha, hn=hn, opts=opts, tau_score=opts.tau)
+            print(len(queried))
 
-        # most query strategies (including QUERY_DETERMINISIC) do not have anything
-        # in update_query_state(), but it might be good to call this just in case...
-        qstate.update_query_state()
+
+    # incorporate feedback and adjust ensemble weights
+    model.update_weights(x_transformed, y_labeled, ha=ha, hn=hn, opts=opts, tau_score=opts.tau)
+
+    # most query strategies (including QUERY_DETERMINISIC) do not have anything
+    # in update_query_state(), but it might be good to call this just in case...
+    qstate.update_query_state()
 
     # the number of anomalies discovered within the budget while incorporating feedback
     found = np.sum(y_labeled[queried])

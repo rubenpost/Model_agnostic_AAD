@@ -38,6 +38,7 @@ data_path = '/workspaces/thesis/data/preprocessed/2012_O.gzip'
 # preprocessed.num_cols.drop(['Unnamed: 0'], axis=1, inplace=True)
 # preprocessed.data.drop(['Unnamed: 0'], axis=1, inplace=True)
 # preprocessed.data.to_csv('/workspaces/thesis/data/preprocessed/preprocessed_2012.csv')
+
 # %%
 # preprocessed = pd.read_csv('/workspaces/thesis/data/preprocessed/preprocessed_2012.csv')
 # preprocessed = datamanager(data = preprocessed)
@@ -62,6 +63,7 @@ data_path = '/workspaces/thesis/data/preprocessed/2012_O.gzip'
 # encoded_data = pd.concat([encoded_numeric, encoded_categorical.reset_index()], axis=1).fillna(0)
 # encoded_data.to_csv('/workspaces/thesis/data/encoded/encoded_2012.csv')
 encoded_data = pd.read_csv('/workspaces/thesis/data/encoded/encoded_2012.csv')
+
 # %%
 df2 = encoded_data
 from sklearn.ensemble import IsolationForest
@@ -93,8 +95,6 @@ encoded_data.drop('score', axis=1, inplace=True)
 # %%
 # Detect anomalies 
 aad = detect_anomalies(np.asarray(encoded_data), y, query)
-
- # %%
 
 # %%
 # process = 1

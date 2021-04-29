@@ -122,8 +122,6 @@ def detect_anomalies(x, y, query, df=None):
                 ha.append(xi)
             if y[xi] == 0:
                 hn.append(xi)
-            print(len(queried))
-
 
     # incorporate feedback and adjust ensemble weights
     model.update_weights(x_transformed, y_labeled, ha=ha, hn=hn, opts=opts, tau_score=opts.tau)

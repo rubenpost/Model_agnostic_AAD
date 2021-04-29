@@ -13,35 +13,31 @@ tqdm.pandas()
 data_path = '/workspaces/thesis/data/preprocessed/2012_O.gzip'
 # %%
 # Preprocess data
-# preprocessed = preprocessor.column_rename(
-#     data_path = data_path,
-#     case_id_col = 'case:concept:name', activity_col = 'concept:name', 
-#     timestamp_col = 'time:timestamp', resource_col = 'org:resource')
+preprocessed = preprocessor.column_rename(
+    data_path = data_path,
+    case_id_col = 'case:concept:name', activity_col = 'concept:name', 
+    timestamp_col = 'time:timestamp', resource_col = 'org:resource')
 
 # %%
 # Enrich data
-# preprocessed.data.rename(columns= {'AMOUNT_REQ':'Request loan amount',
-#                                    'activity':'concept:name'}, inplace=True)
-# preprocessed.data = preprocessed.data.groupby(['case:concept:name']).filter(lambda g: any(g['concept:name'] == 'O_ACCEPTED'))
-# preprocessed.data = preprocessed.data.groupby(['case:concept:name']).progress_apply(enrich.feature_engineering)
-# preprocessed.data = preprocessed.data.groupby(['case:concept:name']).progress_apply(enrich.get_average)
-# preprocessed.data = preprocessed.data.groupby(['case:concept:name']).progress_apply(enrich.bounded_existence, activity = 'O_ACCEPTED')
-# preprocessed.data = preprocessed.data.groupby(['case:concept:name']).progress_apply(enrich.four_eye_principle, activity1 = 'O_CREATED', activity2 = 'O_ACCEPTED')
-# preprocessed.data['concept:name'].replace({'O_SELECTED':'Loan requested',
-#                                            'O_CREATED':'Create loan offer',
-#                                            'O_SENT':'Sent loan offer to client',
-#                                            'O_SENT_BACK':'Receive documents from client',
-#                                            'O_ACCEPTED':'Approve loan request',
-#                                            'O_CANCELLED':'Cancel loan request'}, inplace=True)
+preprocessed.data.rename(columns= {'AMOUNT_REQ':'Request loan amount',
+                                   'activity':'concept:name'}, inplace=True)
+preprocessed.data = preprocessed.data.groupby(['case:concept:name']).filter(lambda g: any(g['concept:name'] == 'O_ACCEPTED'))
+preprocessed.data = preprocessed.data.groupby(['case:concept:name']).progress_apply(enrich.feature_engineering)
+preprocessed.data = preprocessed.data.groupby(['case:concept:name']).progress_apply(enrich.get_average)
+preprocessed.data = preprocessed.data.groupby(['case:concept:name']).progress_apply(enrich.bounded_existence, activity = 'O_ACCEPTED')
+preprocessed.data = preprocessed.data.groupby(['case:concept:name']).progress_apply(enrich.four_eye_principle, activity1 = 'O_CREATED', activity2 = 'O_ACCEPTED')
+preprocessed.data['concept:name'].replace({'O_SELECTED':'Loan requested',
+                                           'O_CREATED':'Create loan offer',
+                                           'O_SENT':'Sent loan offer to client',
+                                           'O_SENT_BACK':'Receive documents from client',
+                                           'O_ACCEPTED':'Approve loan request',
+                                           'O_CANCELLED':'Cancel loan request'}, inplace=True)
 # %%
-# preprocessed = datamanager(data = preprocessed.data)
-# preprocessed.num_cols.drop(['Unnamed: 0'], axis=1, inplace=True)
-# preprocessed.data.drop(['Unnamed: 0'], axis=1, inplace=True)
-# preprocessed.data.to_csv('/workspaces/thesis/data/preprocessed/preprocessed_2012.csv')
-
-# %%
-# preprocessed = pd.read_csv('/workspaces/thesis/data/preprocessed/preprocessed_2012.csv')
-# preprocessed = datamanager(data = preprocessed)
+preprocessed = datamanager(data = preprocessed.data)
+preprocessed.num_cols.drop(['Unnamed: 0'], axis=1, inplace=True)
+preprocessed.data.drop(['Unnamed: 0'], axis=1, inplace=True)
+preprocessed.data.to_csv('/workspaces/thesis/data/preprocessed/preprocessed_2012.csv')
 
 # %%
 # Encode data
@@ -97,21 +93,27 @@ encoded_data.drop('score', axis=1, inplace=True)
 aad = detect_anomalies(np.asarray(encoded_data), y, query)
 
 # %%
-# process = 1
-# for i in df2['@@index'].head(35):
-#     show_anomaly(i, preprocessed, 'head')
-#     print('Processed {} of 100..'.format(process))
-#     process += 1
+for i in aad[0][:100]: print (i)
 
-# for i in df2['@@index'][36:100]:
-#     show_anomaly(i, preprocessed, 'head')
-#     print('Processed {} of 100..'.format(process))
-#     process += 1
-# print('Done')
+# %%
+process = 1
+for i in aad[0][:100]:
+    show_anomaly(int(i), preprocessed, 'new_head')
+    print('Processed {} of 100..'.format(process))
+    process += 1
 
-# process = 1
-# for i in df2['@@index'].tail(100):
-#     show_anomaly(i, preprocessed, 'tail')
-#     print('Processed {} of 100..'.format(process))
-#     process += 1
-# print('Done')
+for i in aad[0][36:100]:
+    show_anomaly(int(i), preprocessed, 'new_head')
+    print('Processed {} of 100..'.format(process))
+    process += 1
+print('Done')
+
+process = 1
+for i in aad[0][-100:]:
+    show_anomaly(int(i), preprocessed, 'new_tail')
+    print('Processed {} of 100..'.format(process))
+    process += 1
+print('Done')
+
+# %%
+preprocessed

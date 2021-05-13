@@ -111,8 +111,8 @@ def detect_anomalies(x, y, query, df=None):
 
     while len(queried) < opts.budget:
         ordered_idxs, anom_score = model.order_by_score(x_transformed)
-        qx = qstate.get_next_query(ordered_indexes=ordered_idxs,
-                                   queried_items=queried)
+        # qx = qstate.get_next_query(ordered_indexes=ordered_idxs,
+        #                            queried_items=queried)
         qx = query
         queried.extend(qx)
 
@@ -137,7 +137,7 @@ def detect_anomalies(x, y, query, df=None):
 
     return ordered_idxs, model, x_transformed, queried, y_labeled#, original_scores
 
-def show_anomaly(queried, df, index=None):
+def show_anomaly(queried, df, x, index=None):
 
     # Grap queried case from population
     average_cancel = df.data.groupby(['case:concept:name'])['average_cancellation'].mean()
@@ -155,15 +155,25 @@ def show_anomaly(queried, df, index=None):
     # Create event log from queried case
     log = pm.convert_to_event_log(queried_case)
 
+    activity_count = queried_case['activity_count'].max()  
+    activity_percentage = x['activity_count']
+    activity_percentage = activity_percentage[activity_percentage >= activity_count]
+    activity_percentage = (len(activity_percentage) / len(df.data['case:concept:name'].unique()))*100
+
     # Remove boolean columns from dataframe as visualization would not provide benefit
     for column in df.num_cols.columns:
         if df.num_cols[column].nunique() <= 2:
+            df.num_cols.drop(column, axis=1, inplace=True)
+
+    # Remove uninteresting columns for visualization
+    for column in ['Unnamed: 0', 'activity_count', 'average_cancellation', 'average_resource']:
+        if column in df.num_cols:
             df.num_cols.drop(column, axis=1, inplace=True)
     
     # Set seaborn style, subplot size, and initiate position number
     sns.set(style="white", color_codes=True, font_scale = 1)
     sns.despine(left=True)
-    fig, ax = plt.subplots(len(df.num_cols.columns), figsize=(10, (len(df.num_cols.columns))*10))
+    fig, ax = plt.subplots(len(df.num_cols.columns)+4, figsize=(10, 60))
     position = 0
 
     # Visualize process trace
@@ -178,6 +188,7 @@ def show_anomaly(queried, df, index=None):
     ax[position].set_title(f"Process model of case {queried}")
     position += 1
 
+    # plt.tight_layout()
 
     # Create input for ancedent/consequence table
     queried_case.reset_index(drop=True, inplace=True)
@@ -215,11 +226,11 @@ def show_anomaly(queried, df, index=None):
     percentage_cancel = (cancel_queried / case_number) * 100
 
     if cancel_queried == 0:
-        title = "Antecedent (Y-xis) and consequence activities (X-axis). \n Out of all {} loan requests, {} have cancellations.".format(case_number, average_cancel_total)
+        title = "Antecedent (Y-xis) and consequence activities (X-axis). \n In this case, {} activities are performed before being accepted. \n {}% of cases have the same number or more activies performed before being accepted.".format(activity_count,  str(round(activity_percentage, 2)))
     else:
         title = "Antecedent (Y-xis) and consequence activities (X-axis). \n Out of all {} loan requests, {} have cancellations. \n This loan request is cancelled {} times, which happends in {}% of the loan requests.".format(case_number, average_cancel_total, cancel_queried, str(round(percentage_cancel, 2)))
     ax[position].set_title(title, y=1.02)
-    plt.setp(ax[position].get_xticklabels(), rotation=45, ha="right",
+    plt.setp(ax[position].get_xticklabels(), rotation=7.5, ha="right",
             rotation_mode="anchor")
        
     # Loop over data dimensions and create text annotations.
@@ -265,14 +276,12 @@ def show_anomaly(queried, df, index=None):
                             ha="center", va="center", color="w")
     position += 1
 
-    plt.tight_layout()
-
     # Create dataframe used to make base plots
     data = pd.concat([df.num_cols, df.case_id_col], axis=1)
     plot_data = data.dropna(subset=df.num_cols.columns).groupby(['case:concept:name']).max().reset_index()
 
     # Loop over every variable we want to visualize
-    for variable in df.num_cols.drop(['activity_count', 'Request loan amount', 'average_cancellation', 'average_resource'], axis=1).columns:
+    for variable in df.num_cols.columns:
 
         # Plot the variable
         sns.histplot(plot_data[variable], color="mistyrose", ax=ax[position], bins=15)
@@ -284,7 +293,8 @@ def show_anomaly(queried, df, index=None):
         patches = ax[position].patches
         bin_width = patches[0].get_width()
         bin_number = round(variable_value / bin_width)
-        bin_number -= 1
+        # bin_number -= 1
+
         patches[bin_number].set_facecolor('r')
         ax[position].axvline(x=bin_width*bin_number, ymax=0, color='r')
 
@@ -316,21 +326,20 @@ def show_anomaly(queried, df, index=None):
         ax[position].legend(handles=[handle1, handle2])
 
         # Create the figure
-
         ax[position].set_ylabel('Count')
         ax[position].xaxis.labelpad = 20
         ax[position].yaxis.labelpad = 20
 
         position += 1
 
-    ax[position].imshow(np.asarray(queried_case[['bounded_existence_O_ACCEPTED', 'four_eye_principle_O_CREATED_O_ACCEPTED']][0:1]).transpose(), cmap='Reds')
+    ax[position].imshow(np.asarray(queried_case[['bounded_existence_W_Beoordelen fraude', 'Binding_of_duties_O_CREATED_O_ACCEPTED']][0:1]).transpose(), cmap='Reds')
     ax[position].set_yticks(np.arange(2))
     ax[position].set_xticks(np.arange(1))
-    ax[position].set_yticklabels(['Check whether the loan is approved only ones', 'Seperation of duties for the activities: \n \'Loan request\' and \'Approve loan request\''])
+    ax[position].set_yticklabels(['Check whether potential fraud has been reviewed', 'Check whether the loan request was created and accepted by different resources'])
     ax[position].set_xticklabels([' '])
     ax[position].set_title('Two compliance rules were tested:', y=1.02)
 
-    annotation = queried_case[['bounded_existence_O_ACCEPTED', 'four_eye_principle_O_CREATED_O_ACCEPTED']][0:1]
+    annotation = queried_case[['bounded_existence_W_Beoordelen fraude', 'Binding_of_duties_O_CREATED_O_ACCEPTED']][0:1]
 
     if annotation.iloc[0,0] == 0:
         annotation.iloc[0,0] = 'No violation noted'
@@ -343,18 +352,20 @@ def show_anomaly(queried, df, index=None):
         annotation.iloc[0,1] = 'Violation noted'
 
     if annotation.iloc[0,0] == 'No violation noted':
-        text = ax[position].text(0, 0, annotation.iloc[0,0], ha="center", va="center", color="b")
+        text = ax[position].text(0, 0, annotation.iloc[0, 0], ha="center", va="center", color="b")
     else:
-        text = ax[position].text(0, 1, annotation.iloc[0,1], ha="center", va="center", color="w")
+        text = ax[position].text(0, 0, annotation.iloc[0, 0], ha="center", va="center", color="w")
 
     
     if annotation.iloc[0,1] == 'No violation noted':
-        text = ax[position].text(0, 1, annotation.iloc[0,1], ha="center", va="center", color="b")
+        text = ax[position].text(0, 1, annotation.iloc[0, 1], ha="center", va="center", color="b")
     else:
-        text = ax[position].text(0, 1, annotation.iloc[0,1], ha="center", va="center", color="w")
+        text = ax[position].text(0, 1, annotation.iloc[0, 1], ha="center", va="center", color="w")
 
     position += 1
-    
+
+
+
     if index != None:
         plt.savefig('/workspaces/thesis/vis/{}_2012/{}_{}.jpg'.format(index, index, queried), bbox_inches='tight')
     else:

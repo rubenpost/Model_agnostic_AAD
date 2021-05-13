@@ -3,16 +3,20 @@ import numpy as np
 
 class enrich:
 
-    def bounded_existence(self, activity):
+    def bounded_existence(self, activity, count):
         feature_name = 'bounded_existence_%s' % (activity)
-        if np.in1d(self['concept:name'], activity).sum() > 3: self[feature_name] = int(1)
+        if np.in1d(self['concept:name'], activity).sum() > count: self[feature_name] = int(1)
         else: self[feature_name] = int(0)
         return self
 
-    def four_eye_principle(self, activity1, activity2):
-        feature_name = 'four_eye_principle_%s_%s' % (activity1, activity2)
-        condition = self.loc[self['concept:name'] == activity1, 'org:resource'][-1:].reset_index(drop=True).eq(self.loc[self['concept:name'] == activity2, 'org:resource'].reset_index(drop=True))
-        if np.array(condition):    
+    def binding_duties(self, activity1, activity2):
+        feature_name = 'Binding_of_duties_%s_%s' % (activity1, activity2)
+        # condition = self.loc[self['concept:name'] == activity1, 'org:resource'][-1:].reset_index(drop=True).eq(self.loc[self['concept:name'] == activity2, 'org:resource'].reset_index(drop=True))
+        L1 = self.loc[self['concept:name'] == activity1, 'org:resource'].reset_index(drop=True)
+        L2 = self.loc[self['concept:name'] == activity2, 'org:resource'].reset_index(drop=True)
+        condition = [i for i in L1.tolist() if i in L2.tolist()]
+        # if np.array(condition):    
+        if len(condition) >= 1:
             self[feature_name] = int(1)
         else:
             self[feature_name] = int(0)
@@ -34,10 +38,10 @@ class enrich:
         self['activity_count'] = len(self['concept:name'])
         return self
 
-    def get_average(self):
+    def get_average(self, activity):
         test = self['concept:name'].value_counts()
-        if 'O_CANCELLED' in test:
-            self['average_cancellation'] = test['O_CANCELLED']
+        if activity in test:
+            self['average_cancellation'] = test[activity]
         else:
             self['average_cancellation'] = 0
         self['average_resource'] = self['org:resource'].nunique()

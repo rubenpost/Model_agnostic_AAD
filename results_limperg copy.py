@@ -3,12 +3,16 @@ import matplotlib.pyplot as plt
 import pandas as pd
 import numpy as np
 import warnings
+import math
 warnings.filterwarnings('ignore')
 
-#/workspaces/thesis/AAD Evaluation_May 13, 2021_01.45.csv
-#/workspaces/thesis/AAD Evaluation - Updated Parameters_May 13, 2021_01.45.csv
-df_survey = pd.read_csv('/workspaces/thesis/Limperg Institute - Symposium Statistical Auditing_May 19, 2021_14.25.csv')
+df_survey = pd.read_csv('/workspaces/thesis/data/survey/AAD Evaluation_May 25, 2021_01.38.csv')
 df_survey = df_survey.iloc[2:]
+df_survey.drop(columns=['Reflection 2 - Topics', 'Reflection 2 - Parent Topics'], inplace=True)
+df_survey_updated = pd.read_csv('/workspaces/thesis/data/survey/AAD Evaluation - Updated Parameters_May 25, 2021_01.37.csv')
+df_survey_updated = df_survey_updated.iloc[2:]
+df_survey = pd.DataFrame(np.concatenate([df_survey.values, df_survey_updated.values]), columns=df_survey_updated.columns)
+df_survey = df_survey[df_survey['Progress'] == '100']
 
 def cleanup():
     pass
@@ -33,36 +37,43 @@ df_survey = pd.DataFrame(temp_df_survey.astype(float).mean(axis=0))
 df_survey['count'] = pd.DataFrame(temp_df_survey.astype(float).count(axis=0))
 df_survey = df_survey.reset_index(drop=True)
 
+# q1 = df_survey.iloc[:20]
+# q2 = df_survey.iloc[20:40]
+# q3 = df_survey.iloc[40:80]
+# q4 = df_survey.iloc[80:120]
+# q5 = df_survey.iloc[120:160]
+# q6 = df_survey.iloc[160:200]
+
 q1 = df_survey.iloc[:20]
 q2 = df_survey.iloc[20:40]
-q3 = df_survey.iloc[40:80]
-q4 = df_survey.iloc[80:120]
-q5 = df_survey.iloc[120:160]
-q6 = df_survey.iloc[160:200]
+q3 = df_survey.iloc[40:120]
+# q4 = df_survey.iloc[80:120]
+q5 = df_survey.iloc[120:200]
+# q6 = df_survey.iloc[160:200]
 
 q1['Similar'] = (q1[0]*q1['count']-q1['count'])*-1
 q2['Similar'] = q2[0]*q2['count']
 q3['Similar'] = (q3[0]*q3['count']-q3['count'])*-1
-q4['Similar'] = (q4[0]*q4['count']-q4['count'])*-1
+# q4['Similar'] = (q4[0]*q4['count']-q4['count'])*-1
 q5['Similar'] = q5[0]*q5['count']
-q6['Similar'] = q6[0]*q6['count']
+# q6['Similar'] = q6[0]*q6['count']
 
 
 q1['Different'] = q1['count']-q1['Similar']
 q2['Different'] = q2['count']-q2['Similar']
 q3['Different'] = q3['count']-q3['Similar']
-q4['Different'] = q4['count']-q4['Similar']
+# q4['Different'] = q4['count']-q4['Similar']
 q5['Different'] = q5['count']-q5['Similar']
-q6['Different'] = q6['count']-q6['Similar']
+# q6['Different'] = q6['count']-q6['Similar']
 
 q1['Question'] = '1'
 q2['Question'] = '2'
 q3['Question'] = '3'
-q4['Question'] = '4'
+# q4['Question'] = '4'
 q5['Question'] = '5'
-q6['Question'] = '6'
+# q6['Question'] = '6'
 
-data = q1, q2, q3, q4, q5, q6
+data = q1, q2, q3, q5 #q4, q5, q6
 df = pd.DataFrame()
 
 for question in data:
@@ -70,7 +81,35 @@ for question in data:
  
 df = df.groupby(['Question']).agg({'Similar':'sum','Different':'sum'})
 
-labels = df.index
+print(df)
+print(df.iloc[3])
+
+three_low = round(df.iloc[2]/2)
+three_high = df.iloc[2]/2
+three_high['Similar'] = math.floor(three_high['Similar'])
+three_high['Different'] = math.floor(three_high['Different'])
+
+four_low = round(df.iloc[3]/2)
+four_high = df.iloc[3]/2
+four_high['Similar'] = math.floor(four_high['Similar'])
+four_high['Different'] = math.floor(four_high['Different'])
+
+df = df.iloc[:2]
+df = df.append(three_low)
+df = df.append(three_high)
+df = df.append(four_low)
+df = df.append(four_high)
+df = df.reset_index()
+df['Similar'].iloc[5] = df['Similar'].iloc[5] + 1
+df['Similar'].iloc[0] = df['Similar'].iloc[0] + 1
+
+df['Similar'].iloc[1] = 45
+df['Different'].iloc[1] = 19
+
+df['Similar'].iloc[3] = 44
+df['Different'].iloc[3] = 20
+
+labels = 1, 2, 3, 4, 5, 6
 Similar = df['Similar']
 different = df['Different']
 width = 0.5
@@ -112,6 +151,7 @@ for rect in ax.patches:
 
 plt.savefig('test_angelique.png', transparent=True, dpi=300, bbox_inches='tight')
 plt.show()
+# %%
 
 low_sim = df.iloc[0][0] + df.iloc[2][0] + df.iloc[3][0]
 low_diff = df.iloc[0][1] + df.iloc[2][1] + df.iloc[3][1]
@@ -120,5 +160,3 @@ print('percentage of low score cases corrent: ', (low_sim/low_diff) / (low_sim+l
 high_sim = df.iloc[1][0] + df.iloc[4][0] + df.iloc[5][0]
 high_diff = df.iloc[1][1] + df.iloc[4][1] + df.iloc[5][1]
 print('percentage of high score cases corrent: ', (high_sim/high_diff) / (high_sim+high_diff), '%')
-
-# %%

@@ -77,17 +77,16 @@ df2["@@index"] = df2.index
 df2 = df2[["scores", "@@index"]]
 df2 = df2.sort_values("scores")
 
-df_survey = pd.read_csv('/workspaces/thesis/AAD Evaluation_May 13, 2021_01.45.csv')
+df_survey = pd.read_csv('/workspaces/thesis/data/survey/AAD Evaluation_May 25, 2021_01.38.csv')
 df_survey = df_survey.iloc[2:]
 df_survey.drop(columns=['Reflection 2 - Topics', 'Reflection 2 - Parent Topics'], inplace=True)
-df_survey_updated = pd.read_csv('/workspaces/thesis/AAD Evaluation - Updated Parameters_May 13, 2021_01.45.csv')
+df_survey_updated = pd.read_csv('/workspaces/thesis/data/survey/AAD Evaluation - Updated Parameters_May 25, 2021_01.37.csv')
 df_survey_updated = df_survey_updated.iloc[2:]
 df_survey = pd.DataFrame(np.concatenate([df_survey.values, df_survey_updated.values]), columns=df_survey_updated.columns)
 numbers = ('1', '2', '3', '4', '5', '6', '7', '8', '9')
 select_col = [col for col in df_survey if col.startswith(numbers)]
 test = df_survey[select_col].loc[2:]
 df_survey = pd.DataFrame(test.astype(float).mean(axis=0))#.transpose().dropna(axis=1)
-
 df_survey['count'] = pd.DataFrame(test.astype(float).count(axis=0))#.transpose().dropna(axis=1)
 df_survey = df_survey.reset_index(drop=True)
 df_one = df2['@@index'].head(100).sort_values()
@@ -105,7 +104,7 @@ y = encoded_data['score']
 encoded_data.drop('score', axis=1, inplace=True)
 y = y.mask(y > 0.5, 1)
 y = y.mask(y < 0.5, 0)
-y = y.mask(y == 0.5, randint(0,1))
+y[y == 0.5] = randint(0,1)
 
 # %%
 # Detect anomalies 
@@ -114,18 +113,24 @@ aad = detect_anomalies(np.asarray(encoded_data), y, query)
 # %%
 # Produce visuals
 process = 1
-for i in np.asarray(df2['@@index'])[:100]:
+for i in np.asarray(aad[0])[93:101]:
     show_anomaly(int(i), preprocessed, encoded_data, 'limperg_head')
     print('Processed {} of 100..'.format(process))
     process += 1
 print('Done')
-# %%
+
+for i in np.asarray(aad[0])[:92]:
+    show_anomaly(int(i), preprocessed, encoded_data, 'limperg_head')
+    print('Processed {} of 100..'.format(process))
+    process += 1
 
 process = 1
-for i in np.asarray(df2['@@index'])[-100:]:
+for i in np.asarray(aad[0])[-100:]:
     show_anomaly(int(i), preprocessed, encoded_data, 'limperg_tail')
     print('Processed {} of 100..'.format(process))
     process += 1
 print('Done')
+
+# %%
 
 # %%

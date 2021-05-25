@@ -31,7 +31,7 @@ from pm4py.visualization.dfg import visualizer as dfg_visualization
 # %%
 logger = logging.getLogger(__name__)
 
-def get_debug_args(budget=30, detector_type=AAD_IFOREST):
+def get_debug_args(budget=200, detector_type=AAD_IFOREST):
     # return the AAD parameters what will be parsed later
     return ["--resultsdir=./temp", "--randseed=42",
             "--reruns=1",
@@ -173,7 +173,7 @@ def show_anomaly(queried, df, x, index=None):
     # Set seaborn style, subplot size, and initiate position number
     sns.set(style="white", color_codes=True, font_scale = 1.3)
     sns.despine(left=True)
-    fig, ax = plt.subplots(len(df.num_cols.columns)+4, figsize=(10, 70))
+    fig, ax = plt.subplots(len(df.num_cols.columns)+4, figsize=(10, 90))
     position = 0
 
     # Visualize process trace
@@ -185,7 +185,7 @@ def show_anomaly(queried, df, x, index=None):
     img = mpimg.imread(file_name.name)
     ax[position].axis('off')
     ax[position].imshow(img)
-    ax[position].set_title(f"Process model of case {queried}")
+    ax[position].set_title(f"Process model of loan request {queried}")
     position += 1
 
     # plt.tight_layout()
@@ -226,9 +226,9 @@ def show_anomaly(queried, df, x, index=None):
     percentage_cancel = (cancel_queried / case_number) * 100
 
     if cancel_queried == 0:
-        title = "The perforemd activiuty (Y-xis) and the activities that followed (X-axis). \n In this case, {} activities are performed before being accepted. \n {}% of cases have the same number or more activies performed before being accepted.".format(activity_count,  str(round(activity_percentage, 2)))
+        title = "The performed activity (Y-xis) and the activities that followed (X-axis). \n This case does not contain any cancellations.\n {}% of cases also do not contain any cancellations.".format(str(round(average_cancel_total/df.data['case:concept:name'].nunique()*100)))
     else:
-        title = "The perforemd activiuty (Y-xis) and the activities that followed (X-axis). \n Out of all {} loan requests, {} have cancellations. \n This loan request is cancelled {} times, which happends in {}% of the loan requests.".format(case_number, average_cancel_total, cancel_queried, str(round(percentage_cancel, 2)))
+        title = "The performed activity (Y-xis) and the activities that followed (X-axis). \n Out of all {} loan requests, {} have cancellations. \n This loan request is cancelled {} times, which happends in {}% of the loan requests.".format(case_number, average_cancel_total, cancel_queried, str(round(percentage_cancel, 2)))
     ax[position].set_title(title, y=1.02)
     plt.setp(ax[position].get_xticklabels(), ha="right", rotation=25,
             rotation_mode="anchor")
@@ -317,7 +317,11 @@ def show_anomaly(queried, df, x, index=None):
             text_x = (bin_width*bin_number)+bin_width/2
         plt.text(text_x, text_y, text, transform=ax[position].get_xaxis_transform())
 
-        title = '' #'Histogram showing the length of other loan requests (pink bars) and the length of the potential key item (red bar). \n The higher the bar, the more often a loan request of that length appears in the population.'
+        if variable == 'Request loan amount':
+            title = 'Histogram showing the monetary value of other loan requests (pink bars) and the monetary value of the potential key item (red bar). \n The higher the bar, the more often a loan request of that length appears in the population.'
+        else:
+            title = 'Histogram showing the length of other loan requests (pink bars) and the length of the potential key item (red bar). \n The higher the bar, the more often a loan request of that length appears in the population.'
+
         ax[position].set_title(title, y=1.02)
 
         # Adjust labels
@@ -367,6 +371,6 @@ def show_anomaly(queried, df, x, index=None):
 
 
     if index != None:
-        plt.savefig('/workspaces/thesis/vis/{}_2012/{}_{}.jpg'.format(index, index, queried), bbox_inches='tight')
+        plt.savefig('/workspaces/thesis/vis/{}_2012/{}_{}.jpg'.format(index, index, queried), bbox_inches='tight', dpi=300)
     else:
         return plt.show()

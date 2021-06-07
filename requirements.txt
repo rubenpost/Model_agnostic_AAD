@@ -16,7 +16,7 @@ graphviz==0.16
 image==1.5.33
 importlib-metadata==3.4.0
 intervaltree==3.1.0
-ipykernel==5.4.3
+ipykernel
 ipython==7.20.0
 ipython-genutils==0.2.0
 ipywidgets==7.6.3

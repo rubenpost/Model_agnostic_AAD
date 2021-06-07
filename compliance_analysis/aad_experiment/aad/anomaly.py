@@ -28,7 +28,7 @@ from aad_experiment.aad.forest_description import CompactDescriber, MinimumVolum
 from aad_experiment.aad.query_model import Query
 from pm4py.algo.discovery.dfg import algorithm as dfg_discovery
 from pm4py.visualization.dfg import visualizer as dfg_visualization
-# %%
+
 logger = logging.getLogger(__name__)
 
 def get_debug_args(budget=30, detector_type=AAD_IFOREST):
@@ -173,7 +173,7 @@ def show_anomaly(queried, df, index=None):
     # Set seaborn style, subplot size, and initiate position number
     sns.set(style="white", color_codes=True, font_scale = 1.3)
     sns.despine(left=True)
-    fig, ax = plt.subplots(len(df.num_cols.columns)+4, figsize=(10, 70))
+    fig, ax = plt.subplots(len(df.num_cols.columns)+4, figsize=(10, 90))
     position = 0
 
     # Visualize process trace
@@ -185,7 +185,7 @@ def show_anomaly(queried, df, index=None):
     img = mpimg.imread(file_name.name)
     ax[position].axis('off')
     ax[position].imshow(img)
-    ax[position].set_title(f"Process model of case {queried}")
+    ax[position].set_title(f"Process model of loan request {queried}")
     position += 1
 
     # plt.tight_layout()
@@ -317,7 +317,11 @@ def show_anomaly(queried, df, index=None):
             text_x = (bin_width*bin_number)+bin_width/2
         plt.text(text_x, text_y, text, transform=ax[position].get_xaxis_transform())
 
-        title = '' #'Histogram showing the length of other loan requests (pink bars) and the length of the potential key item (red bar). \n The higher the bar, the more often a loan request of that length appears in the population.'
+        if variable == 'Request loan amount':
+            title = 'Histogram showing the monetary value of other loan requests (pink bars) and the monetary value of the potential key item (red bar). \n The higher the bar, the more often a loan request of that length appears in the population.'
+        else:
+            title = 'Histogram showing the length of other loan requests (pink bars) and the length of the potential key item (red bar). \n The higher the bar, the more often a loan request of that length appears in the population.'
+
         ax[position].set_title(title, y=1.02)
 
         # Adjust labels
@@ -364,9 +368,7 @@ def show_anomaly(queried, df, index=None):
 
     position += 1
 
-
-
     if index != None:
-        plt.savefig('/workspaces/thesis/vis/{}_2012/{}_{}.jpg'.format(index, index, queried), bbox_inches='tight')
+        plt.savefig('/workspaces/thesis/vis/{}_2012/{}_{}.jpg'.format(index, index, queried), bbox_inches='tight', dpi=300)
     else:
         return plt.show()

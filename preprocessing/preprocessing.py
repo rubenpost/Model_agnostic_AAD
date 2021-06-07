@@ -30,7 +30,7 @@ class preprocessor:
         df = datamanager(data = df)
 
         end = time.time()
-        print("Preprocessing took", end - start, "seconds.")
+        print("Preprocessing took", end - start, "seconds")
         return df
 
 class datamanager:

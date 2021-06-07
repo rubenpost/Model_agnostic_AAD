@@ -62,7 +62,7 @@ def get_debug_args(budget=30, detector_type=AAD_IFOREST):
             "--log_file=./temp/demo_aad.log",
             "--debug"]
 
-def detect_anomalies(x, y, query, df=None):
+def detect_anomalies(x, df=None):
     start = time.time()
     # Prepare the aad arguments. It is easier to first create the parsed args and
     # then create the actual AadOpts from the args  
@@ -90,38 +90,38 @@ def detect_anomalies(x, y, query, df=None):
     ha = []  # labeled anomaly instances
     hn = []  # labeled nominal instances
 
-    # while len(queried) < opts.budget:
-    #     ordered_idxs, anom_score = model.order_by_score(x_transformed)
-    #     original_scores = ordered_idxs
-    #     qx = qstate.get_next_query(ordered_indexes=ordered_idxs,
-    #                             queried_items=queried)
-    #     queried.extend(qx)
-    #     for xi in qx:
-    #         show_anomaly(xi, df)
-    #         while True:
-    #             y_labeled[xi] = input("Is the trace an anomaly? 1 for yes, 0 for no:")
-    #             if y_labeled[xi] not in (1, 0):
-    #                 print("Not an appropriate choice. Please enter 1 for yes, 0 for no.")
-    #             else:
-    #                 break
-    #         if y_labeled[xi] == 1:
-    #             ha.append(xi)
-    #         else:
-    #             hn.append(xi)
-
     while len(queried) < opts.budget:
         ordered_idxs, anom_score = model.order_by_score(x_transformed)
-        # qx = qstate.get_next_query(ordered_indexes=ordered_idxs,
-        #                            queried_items=queried)
-        qx = query
+        original_scores = ordered_idxs
+        qx = qstate.get_next_query(ordered_indexes=ordered_idxs,
+                                queried_items=queried)
         queried.extend(qx)
-
         for xi in qx:
-            y_labeled[xi] = y[xi]  # populate the known labels
-            if y[xi] == 1:
+            show_anomaly(xi, df)
+            while True:
+                y_labeled[xi] = input("Is the trace an anomaly? 1 for yes, 0 for no:")
+                if y_labeled[xi] not in (1, 0):
+                    print("Not an appropriate choice. Please enter 1 for yes, 0 for no.")
+                else:
+                    break
+            if y_labeled[xi] == 1:
                 ha.append(xi)
-            if y[xi] == 0:
+            else:
                 hn.append(xi)
+
+    # while len(queried) < opts.budget:
+    #     ordered_idxs, anom_score = model.order_by_score(x_transformed)
+    #     # qx = qstate.get_next_query(ordered_indexes=ordered_idxs,
+    #     #                            queried_items=queried)
+    #     qx = query
+    #     queried.extend(qx)
+
+    #     for xi in qx:
+    #         y_labeled[xi] = y[xi]  # populate the known labels
+    #         if y[xi] == 1:
+    #             ha.append(xi)
+    #         if y[xi] == 0:
+    #             hn.append(xi)
 
     # incorporate feedback and adjust ensemble weights
     model.update_weights(x_transformed, y_labeled, ha=ha, hn=hn, opts=opts, tau_score=opts.tau)
@@ -137,17 +137,17 @@ def detect_anomalies(x, y, query, df=None):
 
     return ordered_idxs, model, x_transformed, queried, y_labeled#, original_scores
 
-def show_anomaly(queried, df, x, index=None):
+def show_anomaly(queried, df, index=None):
 
     # Grap queried case from population
-    average_cancel = df.data.groupby(['case:concept:name'])['average_cancellation'].mean()
-    average_cancel_total = average_cancel.value_counts()[0]    
-    average_cancel = average_cancel.mean()
-    case_number = len(df.data.groupby(['case:concept:name']))
+    # average_cancel = df.data.groupby(['case:concept:name'])['average_cancellation'].mean()
+    # average_cancel_total = average_cancel.value_counts()[0]    
+    # average_cancel = average_cancel.mean()
+    # case_number = len(df.data.groupby(['case:concept:name']))
 
-    average_resource = df.data.groupby(['case:concept:name'])['average_resource'].mean()
-    resource_number = average_resource
-    average_resource = round(average_resource.mean())
+    # average_resource = df.data.groupby(['case:concept:name'])['average_resource'].mean()
+    # resource_number = average_resource
+    # average_resource = round(average_resource.mean())
 
     gp = df.data.groupby('case:concept:name')
     queried_case = gp.get_group(df.data['case:concept:name'].unique()[queried])
@@ -155,10 +155,10 @@ def show_anomaly(queried, df, x, index=None):
     # Create event log from queried case
     log = pm.convert_to_event_log(queried_case)
 
-    activity_count = queried_case['activity_count'].max()  
-    activity_percentage = x['activity_count']
-    activity_percentage = activity_percentage[activity_percentage >= activity_count]
-    activity_percentage = (len(activity_percentage)+10 / len(df.data['case:concept:name'].unique()))*150
+    # activity_count = queried_case['activity_count'].max()  
+    # activity_percentage = activity_count.value_counts()
+    # activity_percentage = activity_percentage[activity_percentage >= activity_count]
+    # activity_percentage = (len(activity_percentage)+10 / len(df.data['case:concept:name'].unique()))*150
 
     # Remove boolean columns from dataframe as visualization would not provide benefit
     for column in df.num_cols.columns:
@@ -223,12 +223,12 @@ def show_anomaly(queried, df, x, index=None):
     else:
         cancel_queried = 0
 
-    percentage_cancel = (cancel_queried / case_number) * 100
+    # percentage_cancel = (cancel_queried / case_number) * 100
 
     if cancel_queried == 0:
-        title = "The perforemd activiuty (Y-xis) and the activities that followed (X-axis). \n In this case, {} activities are performed before being accepted. \n {}% of cases have the same number or more activies performed before being accepted.".format(activity_count,  str(round(activity_percentage, 2)))
+        title = "The perforemd activiuty (Y-xis) and the activities that followed (X-axis)."# \n In this case, {} activities are performed before being accepted. \n {}% of cases have the same number or more activies performed before being accepted.".format(activity_count,  str(round(activity_percentage, 2)))
     else:
-        title = "The perforemd activiuty (Y-xis) and the activities that followed (X-axis). \n Out of all {} loan requests, {} have cancellations. \n This loan request is cancelled {} times, which happends in {}% of the loan requests.".format(case_number, average_cancel_total, cancel_queried, str(round(percentage_cancel, 2)))
+        title = "The perforemd activiuty (Y-xis) and the activities that followed (X-axis)."# \n Out of all {} loan requests, {} have cancellations. \n This loan request is cancelled {} times, which happends in {}% of the loan requests.".format(case_number, average_cancel_total, cancel_queried, str(round(percentage_cancel, 2)))
     ax[position].set_title(title, y=1.02)
     plt.setp(ax[position].get_xticklabels(), ha="right", rotation=25,
             rotation_mode="anchor")
@@ -256,12 +256,12 @@ def show_anomaly(queried, df, x, index=None):
     ax[position].set_yticks(np.arange(len(activities)))
     ax[position].set_xticklabels(resources)
     ax[position].set_yticklabels(activities)
-    resource_queried = queried_case['org:resource'].nunique()
-    resource_number = resource_number.value_counts()
-    resource_number = resource_number[resource_queried]
-    resource_percenteage = (resource_number / case_number) * 100
+    # resource_queried = queried_case['org:resource'].nunique()
+    # resource_number = resource_number.value_counts()
+    # resource_number = resource_number[resource_queried]
+    # resource_percenteage = (resource_number / case_number) * 100
 
-    title = "Activities performed by resources. \n On average, a loan request is performed by {} resources. This loan request was performed by {} resources. \n {}% of the loan requests are performed by {} resources.".format(average_resource, resource_queried, str(round(resource_percenteage, 2)), resource_queried)
+    title = "Activities performed per resources."# \n On average, a loan request is performed by {} resources. This loan request was performed by {} resources. \n {}% of the loan requests are performed by {} resources.".format(average_resource, resource_queried, str(round(resource_percenteage, 2)), resource_queried)
     ax[position].set_title(title, y=1.02)
     plt.setp(ax[position].get_xticklabels(),ha="right",
             rotation_mode="anchor")

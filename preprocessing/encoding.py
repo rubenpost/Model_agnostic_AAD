@@ -9,7 +9,7 @@ class encoder:
         print("Starting categorical encoding..")      
         encoded_categorical = self.object_cols.groupby(['case:concept:name']).progress_apply(encoder.categorical_encoder_apply, preprocessed = self)
         end = time.time()
-        print("Categorical encoding took", end - start, "seconds.")
+        print("Categorical encoding took", end - start, "seconds")
         return encoded_categorical
 
     def categorical_encoder_apply(self, preprocessed):
@@ -28,6 +28,6 @@ class encoder:
         preprocessed_data = self.data.groupby(['case:concept:name'], as_index=False).agg(numeric_encoding)
         preprocessed_data = preprocessed_data.drop(['case:concept:name'], axis=1)
         end = time.time()
-        print("Numeric encoding took", end - start, "seconds.")
+        print("Numeric encoding took", end - start, "seconds")
         return preprocessed_data
 # %%

@@ -1,5 +1,5 @@
+# Final version
 #pip freeze > requirements.txt
-
 
 FROM python:3.7-slim-buster
 WORKDIR /app

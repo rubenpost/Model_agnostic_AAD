@@ -10,4 +10,4 @@ All dependencies can be found in requirements.txt and are automatically installe
 
 SETUP
 --------------------
-Run main.py to preprocess and enrich event log, calculate anomaly score, and run feedback loop.
+Run main.py to preprocess and enrich event log, calculate anomaly score, and run feedback loop. Number of loops can be changed in anomaly.py.
